@@ -7,13 +7,13 @@ services:
 
 script:
   - docker build -t demyx/scratch .
-  - docker run -t --rm $DOCKER_USERNAME/scratch sh -c 'nginx -V'
+  - docker run -t --rm $DEMYX_USERNAME/scratch sh -c 'nginx -V'
 
 after_script:
   - docker images
 
 before_deploy:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
 deploy:
   provider: script
-  script: docker push demyx/scratch
+  script: docker push "$DEMYX_USERNAME"/scratch
