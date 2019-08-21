@@ -7,7 +7,7 @@ services:
 
 script:
   - docker build -t demyx/scratch .
-  - docker run -t --rm $DEMYX_USERNAME/scratch nginx -V
+  - docker run --rm $DEMYX_USERNAME/scratch sh -c 'nginx -V'
 
 after_script:
   - docker images
