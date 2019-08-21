@@ -6,6 +6,7 @@ services:
   - docker
 
 script:
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker build -t demyx/scratch .
   - docker run --rm $DEMYX_USERNAME/scratch /usr/local/bin/demyx run domain.tld --cache
 
