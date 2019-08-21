@@ -8,8 +8,9 @@ jobs:
         - cd image/nginx-php-wordpress
         - docker build -t demyx/nginx-php-wordpress .
         - docker run -dt --rm --name wp demyx/nginx-php-wordpress
-        - sleep 5
-        - curl -I wp
+        - sleep 10
+        - curl -I "http://wp"
+        - docker ps -a
     #- stage: docker-compose
     #  script:
     #    - cd image/docker-compose
