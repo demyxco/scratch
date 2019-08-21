@@ -8,13 +8,14 @@ services:
 script:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker build -t demyx/scratch .
-  - docker run --rm $DEMYX_USERNAME/scratch /usr/local/bin/demyx run domain.tld --cache
+  - docker run -dt --rm --name "$DEMYX_USERNAME" "$DEMYX_USERNAME"/scratch
+  - docker exec -t "$DEMYX_USERNAME" ls -al /demyx/etc
 
-after_script:
-  - docker images
+#after_script:
+#  - docker images
 
-before_deploy:
-  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-deploy:
-  provider: script
-  script: docker push "$DEMYX_USERNAME"/scratch
+#before_deploy:
+#  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+#deploy:
+#  provider: script
+#  script: docker push "$DEMYX_USERNAME"/scratch
