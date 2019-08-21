@@ -6,7 +6,7 @@ services:
   - docker
 
 script:
-  - docker build demyx/scratch .
+  - docker build -t demyx/scratch .
   - docker run -t --rm $DOCKER_USERNAME/scratch sh -c 'nginx -V'
 
 after_script:
@@ -17,4 +17,3 @@ before_deploy:
 deploy:
   provider: script
   script: docker push demyx/scratch
-  
