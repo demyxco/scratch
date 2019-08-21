@@ -4,7 +4,7 @@ services:
   - docker
 
 script:
-  - ls -al 
+  - cat /etc/os-release
 #  - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
 #  - docker build -t demyx/scratch .
 #  - docker run -dt --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
