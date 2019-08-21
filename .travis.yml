@@ -4,11 +4,12 @@ services:
   - docker
 
 script:
-  - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
-  - docker build -t demyx/scratch .
-  - docker run -dt --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
-  - sleep 5
-  - docker exec -t demyx demyx motd
+  - ls -al 
+#  - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
+#  - docker build -t demyx/scratch .
+#  - docker run -dt --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
+#  - sleep 5
+#  - docker exec -t demyx demyx motd
 
 #after_script:
 #  - docker images
