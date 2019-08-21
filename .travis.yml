@@ -1,5 +1,3 @@
-sudo: required
-
 dist: alpine
 
 services:
@@ -8,7 +6,7 @@ services:
 script:
   - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
   - docker build -t demyx/scratch .
-  - docker run -dt --rm --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
+  - docker run -dt --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
   - sleep 5
   - docker exec -t "$DEMYX_USERNAME" demyx motd
 
