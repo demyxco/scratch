@@ -4,9 +4,11 @@ jobs:
   include:
     - stage: build docker image
       script:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - docker build -t demyx/scratch .
-      - docker images
-      - docker push $DOCKER_USERNAME/scratch
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker build -t demyx/scratch .
+        - docker images
+        - docker push $DOCKER_USERNAME/scratch
     - stage: test
-      script: docker run --rm $DOCKER_USERNAME/scratch "nginx -V"
+      script: 
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker run --rm $DOCKER_USERNAME/scratch "nginx -V"
