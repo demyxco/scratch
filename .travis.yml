@@ -3,16 +3,18 @@ services:
 
 jobs:
   include:
-    - stage: BrowserSync
+    #- stage: BrowserSync
       script:
-        - cd image/browsersync
-        - docker build -t demyx/browsersync .
-        - docker run -t --rm demyx/browsersync --version
-    - stage: docker-compose
-      script:
-        - cd image/docker-compose
-        - docker build -t demyx/docker-compose .
-        - docker run -t --rm demyx/docker-compose --version
+        - cd image/nginx-php-wordpress
+        - docker build -t demyx/nginx-php-wordpress .
+        - docker run -dt --rm --name wp demyx/nginx-php-wordpress
+        - sleep 5
+        - curl -I wp
+    #- stage: docker-compose
+    #  script:
+    #    - cd image/docker-compose
+    #    - docker build -t demyx/docker-compose .
+    #    - docker run -t --rm demyx/docker-compose --version
 
 #script:
 #  - cat /etc/os-release
