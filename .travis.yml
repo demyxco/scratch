@@ -1,16 +1,20 @@
+sudo: required
+
 dist: alpine
 
-jobs:
-  include:
-    - stage: build docker image
-      script:
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker build -t demyx/scratch .
-    - stage: test
-      script: 
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker run -t --rm $DOCKER_USERNAME/scratch sh -c 'nginx -V'
-    - stage: push
-      script:
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker push $DOCKER_USERNAME/scratch
+services:
+  - docker
+
+script:
+  - docker build demyx/scratch .
+  - docker run -t --rm $DOCKER_USERNAME/scratch sh -c 'nginx -V'
+
+after_script:
+  - docker images
+
+before_deploy:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+deploy:
+  provider: script
+  script: docker push demyx/scratch
+  
