@@ -7,7 +7,7 @@ services:
 
 script:
   - docker build -t demyx/scratch .
-  - docker run --rm $DEMYX_USERNAME/scratch sh -c 'nginx -V'
+  - docker run --rm $DEMYX_USERNAME/scratch /usr/local/bin/demyx run domain.tld --cache
 
 after_script:
   - docker images
