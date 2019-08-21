@@ -9,7 +9,8 @@ script:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker build -t demyx/scratch .
   - docker run -dt --rm --name "$DEMYX_USERNAME" "$DEMYX_USERNAME"/scratch
-  - docker exec -t "$DEMYX_USERNAME" ls -al /demyx/etc
+  - sleep 5
+  - docker exec -t "$DEMYX_USERNAME" demyx motd
 
 #after_script:
 #  - docker images
