@@ -6,9 +6,9 @@ services:
   - docker
 
 script:
-  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
   - docker build -t demyx/scratch .
-  - docker run -dt --rm --name "$DEMYX_USERNAME" "$DEMYX_USERNAME"/scratch
+  - docker run -dt --rm --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
   - sleep 5
   - docker exec -t "$DEMYX_USERNAME" demyx motd
 
