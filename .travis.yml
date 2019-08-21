@@ -1,0 +1,9 @@
+services:
+  - docker
+
+before_install:
+  - docker build -t demyx/scratch .
+
+after_install:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push demyx/scratch
