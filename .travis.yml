@@ -8,7 +8,7 @@ script:
   - docker build -t demyx/scratch .
   - docker run -dt --name demyx -v /var/run/docker.sock:/var/run/docker.sock demyx/scratch
   - sleep 5
-  - docker exec -t "$DEMYX_USERNAME" demyx motd
+  - docker exec -t demyx demyx motd
 
 #after_script:
 #  - docker images
