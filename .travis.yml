@@ -9,7 +9,7 @@ jobs:
     - stage: test
       script: 
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker run -t --rm $DOCKER_USERNAME/scratch "nginx -V"
+        - docker run -t --rm $DOCKER_USERNAME/scratch sh -c 'nginx -V'
     - stage: push
       script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
