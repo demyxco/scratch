@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     networks:
       - demyx
+    volumes:
+      - demyx_db:/var/lib/mysql
     environment:
       MARIADB_DATABASE: demyx_db
       MARIADB_USERNAME: demyx_user
@@ -29,6 +31,8 @@ services:
 volumes:
   demyx:
     name: demyx
+  demyx_db:
+    name: demyx_db
 networks:
   demyx:
     name: demyx

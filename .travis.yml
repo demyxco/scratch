@@ -22,10 +22,10 @@ jobs:
         #- docker run -dt --rm --name wp --network host demyx/nginx-php-wordpress
         - docker-compose up -d
         - sleep 10
-        - docker run -t --rm --volumes-from wp wordpress:cli core install --url="http://localhost" --title="demyx" --admin_user="demyx" --admin_password="demyx" --admin_email="info@localhost" --path=/var/www/html --skip-email
+        - docker run -t --rm --volumes-from wp wordpress:cli core install --url="http://localhost" --title="demyx" --admin_user="demyx" --admin_password="demyx" --admin_email="info@localhost" --skip-email
         #- docker exec -t wp sh -c "cat wp-config.php"
         - sleep 5
-        - docker exec -t wp sh -c "apk add curl; curl -I http://localhost"
+        - docker exec -t wp sh -c "apk add curl; curl -I http://localhost; cat wp-config.php"
     #- stage: docker-compose
     #  script:
     #    - cd image/docker-compose
