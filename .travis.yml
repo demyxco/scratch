@@ -6,8 +6,9 @@ services:
 
 env:
   - DOCKER_COMPOSE_VERSION=1.24.1
-  - DEMYX_USERNAME=demyx
-  - DEMYX_REPOSITORY=scratch
+  global:
+    - DEMYX_USERNAME=demyx
+    - DEMYX_REPOSITORY=scratch
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
