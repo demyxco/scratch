@@ -1,3 +1,6 @@
+notifications:
+  email: false
+
 services:
   - docker
 
@@ -21,8 +24,8 @@ jobs:
         #- docker run -dt --rm --name wp --network host demyx/nginx-php-wordpress
         - docker-compose up -d
         - sleep 10
-        - docker exec -t wp "cat wp-config.php"
-        - docker exec -t wp "apk add curl; curl -I http://localhost"
+        - docker exec -t wp sh -c "cat wp-config.php"
+        - docker exec -t wp sh -c "apk add curl; curl -I http://localhost"
         - docker ps -a
     #- stage: docker-compose
     #  script:
