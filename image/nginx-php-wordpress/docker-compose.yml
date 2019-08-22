@@ -6,7 +6,7 @@ services:
     image: demyx/mariadb
     restart: unless-stopped
     networks:
-      - demyx
+      - demyx_network
     volumes:
       - demyx_db:/var/lib/mysql
     environment:
@@ -19,9 +19,9 @@ services:
     image: demyx/nginx-php-wordpress
     restart: unless-stopped
     networks:
-      - demyx
+      - demyx_network
     volumes:
-      - demyx:/var/www/html
+      - demyx_wp:/var/www/html
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: demyx_db
@@ -29,10 +29,10 @@ services:
       WORDPRESS_DB_PASSWORD: demyx_password
       TZ: America/Los_Angeles
 volumes:
-  demyx:
-    name: demyx
+  demyx_wp:
+    name: demyx_wp
   demyx_db:
     name: demyx_db
 networks:
-  demyx:
-    name: demyx
+  demyx_network:
+    name: demyx_network
