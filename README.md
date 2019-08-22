@@ -1,6 +1,8 @@
 # Dockerfile [![Build Status](https://travis-ci.org/demyxco/scratch.svg?branch=master)](https://travis-ci.org/demyxco/scratch)
 * [latest](https://github.com/demyxco/demyx/tree/master/image/nginx-php-wordpress)
 
+test
+
 # Description
 Automatically installs wp-config.php using environment variables, configures salts, and enables HTTP_X_FORWARDED_PROTO.
 * User: www-data, UID: 82
