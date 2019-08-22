@@ -12,21 +12,20 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - docker pull demyx/mariadb
 
 jobs:
   include:
     #- stage: BrowserSync
       script:
         - cd image/nginx-php-wordpress
-        - ls -al
         - docker build -t demyx/nginx-php-wordpress .
         #- docker run -dt --rm --name wp --network host demyx/nginx-php-wordpress
         - docker-compose up -d
         - sleep 10
-        - docker exec -t wp sh -c "cat wp-config.php"
+        - docker run -t --rm --volumes-from wp wordpress:cli core install --url="http://localhost" --title="demyx" --admin_user="demyx" --admin_password="demyx" --admin_email="info@localhost" --skip-email
+        #- docker exec -t wp sh -c "cat wp-config.php"
+        - sleep 5
         - docker exec -t wp sh -c "apk add curl; curl -I http://localhost"
-        - docker ps -a
     #- stage: docker-compose
     #  script:
     #    - cd image/docker-compose

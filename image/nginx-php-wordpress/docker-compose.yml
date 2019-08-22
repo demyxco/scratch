@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
   db:
+    container_name: db
     image: demyx/mariadb
     restart: unless-stopped
     networks:
