@@ -12,6 +12,8 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - docker pull demyx/mariadb
+  - docker pull wordpress:cli
 
 jobs:
   include:
@@ -20,7 +22,7 @@ jobs:
         - docker-compose up -d
         - sleep 5
         - docker run -t --rm --volumes-from wp --network container:wp wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
-        - docker exec -t wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
+        - docker exec -t wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1; php -v; nginx -V"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
