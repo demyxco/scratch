@@ -7,8 +7,8 @@ jobs:
       script:
         - cd image/nginx-php-wordpress
         - docker build -t demyx/nginx-php-wordpress .
-        - docker run -dt --rm --name wp -p 80:80 demyx/nginx-php-wordpress
-        - sleep 5
+        - docker run -dt --rm --name wp --dns "1.1.1.1,1.0.0.1" demyx/nginx-php-wordpress
+        - sleep 10
         - curl -I "http://wp"
         - docker ps -a
         - docker exec -t wp ls -al
