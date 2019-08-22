@@ -1,13 +1,19 @@
 services:
   - docker
 
+before_install:
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - mv docker-compose /usr/local/bin
+
 jobs:
   include:
     #- stage: BrowserSync
       script:
         - cd image/nginx-php-wordpress
         - docker build -t demyx/nginx-php-wordpress .
-        - docker run -dt --rm --name wp --network host demyx/nginx-php-wordpress
+        #- docker run -dt --rm --name wp --network host demyx/nginx-php-wordpress
+        - docker-compose up -d
         - sleep 10
         - curl -I "http://wp"
         - docker ps -a
