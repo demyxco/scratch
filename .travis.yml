@@ -23,6 +23,7 @@ jobs:
         - sleep 5
         - docker run -t --rm --volumes-from wp --network container:wp wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
         - docker exec -t wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1; php -v; nginx -V"
+        - docker exec -t wp sh -c "php -v; nginx -V"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
