@@ -9,6 +9,7 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - docker pull demyx/mariadb
 
 jobs:
   include:
@@ -20,9 +21,9 @@ jobs:
         #- docker run -dt --rm --name wp --network host demyx/nginx-php-wordpress
         - docker-compose up -d
         - sleep 10
-        - curl -I "http://wp"
+        - docker exec -t wp "cat wp-config.php"
+        - docker exec -t wp "apk add curl; curl -I http://localhost"
         - docker ps -a
-        - docker exec -t wp ls -al
     #- stage: docker-compose
     #  script:
     #    - cd image/docker-compose
