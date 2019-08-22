@@ -18,12 +18,17 @@ services:
     restart: unless-stopped
     networks:
       - demyx
+    volumes:
+      - demyx:/var/www/html
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: demyx_db
       WORDPRESS_DB_USER: demyx_user
       WORDPRESS_DB_PASSWORD: demyx_password
       TZ: America/Los_Angeles
+volumes:
+  demyx:
+    name: demyx
 networks:
   demyx:
     name: demyx
