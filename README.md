@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/demyxco/scratch.svg?branch=master)](https://travis-ci.org/demyxco/scratch)
-
-# Dockerfile
+# Dockerfile [![Build Status](https://travis-ci.org/demyxco/scratch.svg?branch=master)](https://travis-ci.org/demyxco/scratch)
 * [latest](https://github.com/demyxco/demyx/tree/master/image/nginx-php-wordpress)
 
 # Description
