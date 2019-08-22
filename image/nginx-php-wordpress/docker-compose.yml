@@ -16,7 +16,7 @@ services:
       MARIADB_ROOT_PASSWORD: demyx_root_password
   wp:
     container_name: wp
-    image: demyx/nginx-php-wordpress
+    image: demyx/scratch
     restart: unless-stopped
     networks:
       - demyx_network
