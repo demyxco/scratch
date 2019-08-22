@@ -6,6 +6,8 @@ services:
 
 env:
   - DOCKER_COMPOSE_VERSION=1.24.1
+  - DEMYX_USERNAME=demyx
+  - DEMYX_REPOSITORY=scratch
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
@@ -16,13 +18,13 @@ before_install:
 jobs:
   include:
       script:
-        - docker build -t demyx/scratch .
+        - docker build -t demyx/"$DEMYX_REPOSITORY" .
         - docker-compose up -d
         - sleep 5
         - docker run -t --rm --volumes-from wp --network container:wp wordpress:cli core install --url="http://localhost" --title="demyx" --admin_user="demyx" --admin_password="demyx" --admin_email="info@domain.tld" --skip-email
         - docker exec -t wp sh -c "apk add curl; curl -I http://localhost; curl http://localhost | grep Welcome"
 
 after_success:
-  - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
-  - docker push demyx/scratch
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
   - bash docker.sh
