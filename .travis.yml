@@ -25,4 +25,5 @@ jobs:
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u demyx --password-stdin
   - docker push demyx/scratch
+  - ls -al
   - docker run --rm -v $PWD:/workspace -e DOCKERHUB_USERNAME=demyx -e DOCKERHUB_PASSWORD="$DEMYX_PASSWORD" -e DOCKERHUB_REPOSITORY=scratch -e README_FILEPATH=/workspace/README.md peterevans/dockerhub-description
