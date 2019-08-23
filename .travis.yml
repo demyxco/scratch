@@ -35,16 +35,18 @@ jobs:
       - sed -i "s/nginx-latest-informational/nginx-${DEMYX_NGINX_VERSION}-informational/g" README.md
       - sed -i "s/php-latest-informational/php-${DEMYX_PHP_VERSION}-informational/g" README.md
       - sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informational/g" README.md
+      - git remote add origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/scratch.git
+      - git add .; git commit -m "Travis build \#$TRAVIS_BUILD_NUMBER"; git push
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
   - bash readme.sh
 
-deploy:
-  provider: pages
-  skip_cleanup: true
-  github_token: $DEMYX_GITHUB_TOKEN
-  keep_history: true
-  on:
-    branch: master
+#deploy:
+#  provider: pages
+#  skip_cleanup: true
+#  github_token: $DEMYX_GITHUB_TOKEN
+#  keep_history: true
+#  on:
+#    branch: master
