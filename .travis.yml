@@ -8,7 +8,6 @@ env:
   - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
 
 before_install:
-  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - sudo apt-get install jq
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -26,7 +25,7 @@ jobs:
       - docker-compose up -d
       - sleep 5
       - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
-      - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli user list
+      - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core is-installed
       - docker exec -t demyx_wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
       - DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
       - DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
@@ -38,5 +37,6 @@ jobs:
       - sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informational/g" README.md
 
 after_success:
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
   - bash readme.sh
