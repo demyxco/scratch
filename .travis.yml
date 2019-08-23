@@ -21,7 +21,7 @@ jobs:
         - docker build -t demyx/"$DEMYX_REPOSITORY" .
         - docker-compose up -d
         - sleep 5
-        #- docker run -t --rm --volumes-from wp --network container:wp wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+        - docker run -t --rm --volumes-from wp --network container:wp wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
         - docker run -t --rm --volumes-from wp --network container:wp wordpress:cli user list
         - docker exec -t wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
         - docker exec -t wp sh -c "php -v"
