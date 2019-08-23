@@ -30,7 +30,8 @@ jobs:
         - docker exec -t demyx_wp sh -c "nginx -V"
 
 after_success:
-  - docker exec -t demyx_wp sh -c "php -v"
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
+  - DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp sh -c "cat /etc/os-release | grep VERSION_ID | cut -c 12-")
+  - sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
   - bash readme.sh
