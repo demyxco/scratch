@@ -22,10 +22,10 @@ PHP | /etc/php7/php.ini<br />/etc/php7/php-fpm.d/php-fpm.conf
 NGINX | /etc/nginx/nginx.conf<br />/etc/nginx/cache<br />/etc/nginx/common<br />/etc/nginx/modules<br />
 
 # Updates
-![Alpine](https://img.shields.io/badge/alpine-latest-informational?style=flat&color=blue)
-![NGINX](https://img.shields.io/badge/nginx-latest-informational?style=flat&color=blue)
-![PHP](https://img.shields.io/badge/php-latest-informational?style=flat&color=blue)
-![WordPress](https://img.shields.io/badge/wordpress-latest-informational?style=flat&color=blue)
+![Alpine](https://img.shields.io/badge/alpine-3.10.1-informational?style=flat&color=blue)
+![NGINX](https://img.shields.io/badge/nginx-1.17.3-informational?style=flat&color=blue)
+![PHP](https://img.shields.io/badge/php-7.3.8-informational?style=flat&color=blue)
+![WordPress](https://img.shields.io/badge/wordpress-5.2.2-informational?style=flat&color=blue)
 
 * Auto built weekly on Sundays (America/Los_Angeles)
 * Rolling release updates
