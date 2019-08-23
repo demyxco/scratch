@@ -36,7 +36,7 @@ jobs:
       - sed -i "s/php-latest-informational/php-${DEMYX_PHP_VERSION}-informational/g" README.md
       - sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informational/g" README.md
       - git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/scratch.git
-      - git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push
+      - git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
