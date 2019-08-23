@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine
 
 LABEL sh.demyx.image demyx/nginx-php-wordpress
 LABEL sh.demyx.maintainer Demyx <info@demyx.sh>

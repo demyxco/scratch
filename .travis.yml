@@ -13,6 +13,7 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - docker pull alpine
   - docker pull demyx/mariadb
   - docker pull traefik
   - docker pull wordpress:cli
@@ -30,12 +31,12 @@ jobs:
         - docker exec -t demyx_wp sh -c "nginx -V"
 
 after_success:
-  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-  - docker push demyx/"$DEMYX_REPOSITORY"
   - DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
   - DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
   - DEMYX_PHP_VERSION=$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
   - DEMYX_WP_VERSION=$(docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core version | sed -e 's/\r//g')
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
   - sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
   - sed -i "s/nginx-latest-informational/nginx-${DEMYX_NGINX_VERSION}-informational/g" README.md
   - sed -i "s/php-latest-informational/php-${DEMYX_PHP_VERSION}-informational/g" README.md
