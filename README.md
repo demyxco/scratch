@@ -1,10 +1,18 @@
 # demyx/nginx-php-wordpress 
-[![Build Status](https://travis-ci.org/demyxco/scratch.svg?branch=master)](https://travis-ci.org/demyxco/scratch) 
-[![](https://images.microbadger.com/badges/version/demyx/demyx.svg)](https://microbadger.com/images/demyx/demyx "Get your own version badge on microbadger.com") 
+[![Build Status](https://travis-ci.org/demyxco/scratch.svg?branch=master)](https://travis-ci.org/demyxco/scratch)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/nginx-php-wordpress)]()
+[![](https://images.microbadger.com/badges/version/demyx/demyx.svg)](https://microbadger.com/images/demyx/demyx "Get your own version badge on microbadger.com")
 [![](https://images.microbadger.com/badges/image/demyx/demyx.svg)](https://microbadger.com/images/demyx/demyx "Get your own image badge on microbadger.com")
 [![Architecture](https://img.shields.io/badge/linux-amd64-important)]()
 
 Automatically installs wp-config.php using environment variables, configures salts, and enables HTTP_X_FORWARDED_PROTO.
+
+| Tables   |      Are      |  Cool |
+|----------|:-------------:|------:|
+| col 1 is |  left-aligned | $1600 |
+| col 2 is |    centered   |   $12 |
+| col 3 is | right-aligned |    $1 |
+
 * User: www-data, UID: 82
 * Volume: /var/www/html
 * Port: 80
