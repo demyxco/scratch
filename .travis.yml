@@ -30,6 +30,7 @@ jobs:
         - docker exec -t demyx_wp sh -c "nginx -V"
 
 after_success:
+  - docker exec -t demyx_wp sh -c "php -v"
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
   - bash readme.sh

@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine
 
 LABEL sh.demyx.image demyx/nginx-php-wordpress
 LABEL sh.demyx.maintainer Demyx <info@demyx.sh>
@@ -7,16 +7,13 @@ LABEL sh.demyx.github https://github.com/demyxco/demyx
 LABEL sh.demyx.registry https://hub.docker.com/u/demyx
 
 ENV TZ America/Los_Angeles
-ENV NGINX_VERSION 1.17.3
-ENV NJS_VERSION   0.3.5
-ENV PKG_RELEASE   1
-ENV NGX_CACHE_PURGE_VERSION 2.3
-ENV HEADERS_MORE_NGINX_MODULE_VERSION 0.33
-ENV WORDPRESS_VERSION 5.2.2
-ENV WORDPRESS_SHA1 3605bcbe9ea48d714efa59b0eb2d251657e7d5b0
 
 RUN set -x \
 # create nginx user/group first, to be consistent throughout docker variants
+    && export NGINX_MAINLINE_DOCKERFILE="$(wget -qO- https://raw.githubusercontent.com/nginxinc/docker-nginx/master/mainline/alpine/Dockerfile)" \
+    && export NGINX_VERSION="$(echo "$NGINX_MAINLINE_DOCKERFILE" | grep 'ENV NGINX_VERSION' | cut -c 19-)" \
+    && export NJS_VERSION="$(echo "$NGINX_MAINLINE_DOCKERFILE" | grep 'ENV NJS_VERSION' | cut -c 19-)" \
+    && export PKG_RELEASE="$(echo "$NGINX_MAINLINE_DOCKERFILE" | grep 'ENV PKG_RELEASE' | cut -c 19-)" \
     && addgroup -g 101 -S nginx \
     && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
     && apkArch="$(cat /etc/apk/arch)" \
@@ -122,7 +119,8 @@ RUN set -x \
 #    
 # BUILD CUSTOM MODULES
 #
-RUN apk add --no-cache --virtual .build-deps \
+RUN set -x; \
+    apk add --no-cache --virtual .build-deps \
 	gcc \
 	libc-dev \
 	make \
@@ -130,35 +128,32 @@ RUN apk add --no-cache --virtual .build-deps \
 	pcre-dev \
 	zlib-dev \
 	linux-headers \
-	curl \
 	gnupg1 \
 	libxslt-dev \
 	gd-dev \
 	geoip-dev \
+    git \
 	\
+    && export NGINX_VERSION="$(wget -qO- https://raw.githubusercontent.com/nginxinc/docker-nginx/master/mainline/alpine/Dockerfile | grep 'ENV NGINX_VERSION' | cut -c 19-)" \
 	&& mkdir -p /usr/src \
-	&& curl -o ngx_cache_purge.tar.gz -fSL "https://github.com/FRiCKLE/ngx_cache_purge/archive/${NGX_CACHE_PURGE_VERSION}.tar.gz" \
-	&& tar -xzf ngx_cache_purge.tar.gz -C /usr/src/ \
-	&& rm ngx_cache_purge.tar.gz \
-	&& curl -o headers-more-nginx-module.tar.gz -fSL "https://github.com/openresty/headers-more-nginx-module/archive/v${HEADERS_MORE_NGINX_MODULE_VERSION}.tar.gz" \
-	&& tar -xzf headers-more-nginx-module.tar.gz -C /usr/src/ \
-	&& rm headers-more-nginx-module.tar.gz \
-	&& curl -o nginx.tar.gz -fSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" \
-	&& tar -xzf nginx.tar.gz -C /usr/src/ \
-	&& rm nginx.tar.gz \
-	&& sed -i "s/HTTP_MODULES/#HTTP_MODULES/g" /usr/src/ngx_cache_purge-"$NGX_CACHE_PURGE_VERSION"/config \
-	&& sed -i "s/NGX_ADDON_SRCS/#NGX_ADDON_SRCS/g" /usr/src/ngx_cache_purge-"$NGX_CACHE_PURGE_VERSION"/config \
-	&& sed -i "s|ngx_addon_name=ngx_http_cache_purge_module|ngx_addon_name=ngx_http_cache_purge_module; if test -n \"\$ngx_module_link\"; then ngx_module_type=HTTP; ngx_module_name=ngx_http_cache_purge_module; ngx_module_srcs=\"\$ngx_addon_dir/ngx_cache_purge_module.c\"; . auto/module; else HTTP_MODULES=\"\$HTTP_MODULES ngx_http_cache_purge_module\"; NGX_ADDON_SRCS=\"\$NGX_ADDON_SRCS \$ngx_addon_dir/ngx_cache_purge_module.c\"; fi|g" /usr/src/ngx_cache_purge-${NGX_CACHE_PURGE_VERSION}/config \
-	&& sed -i "s|ngx_addon_name=ngx_http_headers_more_filter_module|ngx_addon_name=ngx_http_headers_more_filter_module; if test -n \"\$ngx_module_link\"; then ngx_module_type=HTTP; ngx_module_name=ngx_http_headers_more_filter_module; ngx_module_srcs=\"\$ngx_addon_dir/ngx_http_headers_more_filter_module.c\"; . auto/module; else HTTP_MODULES=\"\$HTTP_MODULES ngx_http_headers_more_filter_module\"; NGX_ADDON_SRCS=\"\$NGX_ADDON_SRCS \$ngx_addon_dir/ngx_http_headers_more_filter_module.c\"; fi|g" /usr/src/headers-more-nginx-module-${HEADERS_MORE_NGINX_MODULE_VERSION}/config \
+    && git clone https://github.com/FRiCKLE/ngx_cache_purge.git /usr/src/ngx_cache_purge \
+    && git clone https://github.com/openresty/headers-more-nginx-module.git /usr/src/headers-more-nginx-module \
+    && wget https://nginx.org/download/nginx-"$NGINX_VERSION".tar.gz -qO /usr/src/nginx.tar.gz \
+	&& tar -xzf /usr/src/nginx.tar.gz -C /usr/src \
+	&& rm /usr/src/nginx.tar.gz \
+	&& sed -i "s/HTTP_MODULES/#HTTP_MODULES/g" /usr/src/ngx_cache_purge/config \
+	&& sed -i "s/NGX_ADDON_SRCS/#NGX_ADDON_SRCS/g" /usr/src/ngx_cache_purge/config \
+	&& sed -i "s|ngx_addon_name=ngx_http_cache_purge_module|ngx_addon_name=ngx_http_cache_purge_module; if test -n \"\$ngx_module_link\"; then ngx_module_type=HTTP; ngx_module_name=ngx_http_cache_purge_module; ngx_module_srcs=\"\$ngx_addon_dir/ngx_cache_purge_module.c\"; . auto/module; else HTTP_MODULES=\"\$HTTP_MODULES ngx_http_cache_purge_module\"; NGX_ADDON_SRCS=\"\$NGX_ADDON_SRCS \$ngx_addon_dir/ngx_cache_purge_module.c\"; fi|g" /usr/src/ngx_cache_purge/config \
+	&& sed -i "s|ngx_addon_name=ngx_http_headers_more_filter_module|ngx_addon_name=ngx_http_headers_more_filter_module; if test -n \"\$ngx_module_link\"; then ngx_module_type=HTTP; ngx_module_name=ngx_http_headers_more_filter_module; ngx_module_srcs=\"\$ngx_addon_dir/ngx_http_headers_more_filter_module.c\"; . auto/module; else HTTP_MODULES=\"\$HTTP_MODULES ngx_http_headers_more_filter_module\"; NGX_ADDON_SRCS=\"\$NGX_ADDON_SRCS \$ngx_addon_dir/ngx_http_headers_more_filter_module.c\"; fi|g" /usr/src/headers-more-nginx-module/config \
 	&& cd /usr/src/nginx-"$NGINX_VERSION" \
-	&& ./configure --with-compat --add-dynamic-module=/usr/src/ngx_cache_purge-"$NGX_CACHE_PURGE_VERSION" \
+	&& ./configure --with-compat --add-dynamic-module=/usr/src/ngx_cache_purge \
 	&& make modules \
 	&& cp objs/ngx_http_cache_purge_module.so /etc/nginx/modules \
 	&& make clean \
-	&& ./configure --with-compat --add-dynamic-module=/usr/src/headers-more-nginx-module-"$HEADERS_MORE_NGINX_MODULE_VERSION" \
+	&& ./configure --with-compat --add-dynamic-module=/usr/src/headers-more-nginx-module \
 	&& make modules \
 	&& cp objs/ngx_http_headers_more_filter_module.so /etc/nginx/modules \
-	&& rm -rf /usr/src/nginx-"$NGINX_VERSION" /usr/src/ngx_cache_purge-"$NGX_CACHE_PURGE_VERSION" /usr/src/headers-more-nginx-module-"$HEADERS_MORE_NGINX_MODULE_VERSION" \
+	&& rm -rf /usr/src/nginx-"$NGINX_VERSION" /usr/src/ngx_cache_purge /usr/src/headers-more-nginx-module \
 	&& apk del .build-deps \
     && rm -rf /var/cache/apk/*
 #    
@@ -206,15 +201,12 @@ RUN set -ex; \
     ln -s /usr/sbin/php-fpm7 /usr/local/bin/php-fpm; \
     mkdir -p /var/log/demyx
 
-
-
 RUN set -ex; \
-    apk add --no-cache --virtual .wp-deps curl; \
+    apk add --no-cache --virtual .wp-deps; \
     mkdir -p /var/www/html; \
-	curl -o wordpress.tar.gz -fSL "https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz"; \
-	echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c -; \
-	tar -xzf wordpress.tar.gz -C /usr/src/; \
-	rm wordpress.tar.gz; \
+	wget https://wordpress.org/latest.tar.gz -qO /usr/src/latest.tar.gz; \
+	tar -xzf /usr/src/latest.tar.gz -C /usr/src; \
+	rm /usr/src/latest.tar.gz; \
 	chown -R www-data:www-data /usr/src/wordpress; \
     apk del .wp-deps && rm -rf /var/cache/apk/*
 
