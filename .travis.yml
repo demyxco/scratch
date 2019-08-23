@@ -40,10 +40,11 @@ after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
   - bash readme.sh
-  deploy:
-    provider: pages
-    skip_cleanup: true
-    github_token: $DEMYX_GITHUB_TOKEN
-    keep_history: true
-    on:
-      branch: master
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $DEMYX_GITHUB_TOKEN
+  keep_history: true
+  on:
+    branch: master
