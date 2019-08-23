@@ -1,5 +1,5 @@
 # nginx-php-wordpress
-[![Build Status](https://img.shields.io/travis/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://travis-ci.org/demyxco/nginx-php-wordpress)
+[![Build Status](https://img.shields.io/travis/demyxco/nginx-php-wordpress?style=flat)](https://travis-ci.org/demyxco/nginx-php-wordpress)
 [![Docker Pulls](https://img.shields.io/docker/pulls/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 [![Docker Layers](https://img.shields.io/microbadger/layers/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 [![Docker Image Size](https://img.shields.io/microbadger/image-size/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
