@@ -27,7 +27,6 @@ jobs:
       - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
       - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core is-installed
       - docker exec -t demyx_wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
-      - wget --spider -S "http://demyx_wp" 2>&1 | grep "HTTP/" | awk '{print $2}'
       - DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
       - DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
       - DEMYX_PHP_VERSION=$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
@@ -41,3 +40,10 @@ after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
   - bash readme.sh
+  deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $DEMYX_GITHUB_TOKEN
+    keep_history: true
+    on:
+      branch: master

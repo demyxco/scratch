@@ -27,7 +27,8 @@ NGINX | /etc/nginx/nginx.conf<br />/etc/nginx/cache<br />/etc/nginx/common<br />
 ![PHP](https://img.shields.io/badge/php-latest-informational?style=flat&color=blue)
 ![WordPress](https://img.shields.io/badge/wordpress-latest-informational?style=flat&color=blue)
 
-This image is built weekly (Sunday America/Los_Angeles) and will follow a rolling release update model. Meaning everything will be running the latest versions.
+* Auto built weekly on Sundays (America/Los_Angeles)
+* Rolling release updates
 
 # Usage
 This config requires no .toml for Traefik and is ready to go when running: 
