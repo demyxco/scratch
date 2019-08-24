@@ -4,10 +4,10 @@
 [![Docker Layers](https://img.shields.io/microbadger/layers/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 [![Docker Image Size](https://img.shields.io/microbadger/image-size/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 [![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
-![Alpine](https://img.shields.io/badge/alpine-3.10.1-informational?style=flat&color=blue)
-![NGINX](https://img.shields.io/badge/nginx-1.17.3-informational?style=flat&color=blue)
-![PHP](https://img.shields.io/badge/php-7.3.8-informational?style=flat&color=blue)
-![WordPress](https://img.shields.io/badge/wordpress-5.2.2-informational?style=flat&color=blue)
+[![Alpine](https://img.shields.io/badge/alpine-3.10.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
+[![NGINX](https://img.shields.io/badge/nginx-1.17.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
+[![PHP](https://img.shields.io/badge/php-7.3.8-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
+[![WordPress](https://img.shields.io/badge/wordpress-5.2.2-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 
 Automatically installs wp-config.php using environment variables, configures salts, and enables HTTP_X_FORWARDED_PROTO. Image was built for: [github.com/demyxco](https://github.com/demyxco/demyx). 
 
