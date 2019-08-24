@@ -4,11 +4,10 @@
 [![Docker Layers](https://img.shields.io/microbadger/layers/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 [![Docker Image Size](https://img.shields.io/microbadger/image-size/demyx/nginx-php-wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
 [![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/nginx-php-wordpress)
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
-[![Watches](https://img.shields.io/github/watchers/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
-[![Stars](https://img.shields.io/github/stars/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
-[![Forks](https://img.shields.io/github/forks/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
+![Alpine](https://img.shields.io/badge/alpine-3.10.1-informational?style=flat&color=blue)
+![NGINX](https://img.shields.io/badge/nginx-1.17.3-informational?style=flat&color=blue)
+![PHP](https://img.shields.io/badge/php-7.3.8-informational?style=flat&color=blue)
+![WordPress](https://img.shields.io/badge/wordpress-5.2.2-informational?style=flat&color=blue)
 
 Automatically installs wp-config.php using environment variables, configures salts, and enables HTTP_X_FORWARDED_PROTO. Image was built for: [github.com/demyxco](https://github.com/demyxco/demyx). 
 
@@ -22,10 +21,11 @@ PHP | /etc/php7/php.ini<br />/etc/php7/php-fpm.d/php-fpm.conf
 NGINX | /etc/nginx/nginx.conf<br />/etc/nginx/cache<br />/etc/nginx/common<br />/etc/nginx/modules<br />
 
 # Updates
-![Alpine](https://img.shields.io/badge/alpine-3.10.1-informational?style=flat&color=blue)
-![NGINX](https://img.shields.io/badge/nginx-1.17.3-informational?style=flat&color=blue)
-![PHP](https://img.shields.io/badge/php-7.3.8-informational?style=flat&color=blue)
-![WordPress](https://img.shields.io/badge/wordpress-5.2.2-informational?style=flat&color=blue)
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
+[![Watches](https://img.shields.io/github/watchers/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
+[![Stars](https://img.shields.io/github/stars/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
+[![Forks](https://img.shields.io/github/forks/demyxco/nginx-php-wordpress?style=flat&color=blue)](https://github.com/demyxco/nginx-php-wordpress)
 
 * Auto built weekly on Sundays (America/Los_Angeles)
 * Rolling release updates
