@@ -23,7 +23,7 @@ sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informati
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/scratch.git
-git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
+git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master || true
 
 # Set the default path to README.md
 README_FILEPATH="./README.md"
