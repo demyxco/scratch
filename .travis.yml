@@ -20,44 +20,25 @@ before_install:
 
 jobs:
   include:
-    - name: Build
-      script:
-        - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-    - name: Test
-      script:
-        - docker-compose up -d
-        - sleep 5
-        - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
-        - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core is-installed
-        #- docker exec -t demyx_wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
-        - curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1
-    - name: Update README
-      script:  
-        - DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-        - DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
-        - DEMYX_PHP_VERSION=$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
-        - DEMYX_WP_VERSION=$(docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core version | sed -e 's/\r//g')
-        - sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
-        - sed -i "s/nginx-latest-informational/nginx-${DEMYX_NGINX_VERSION}-informational/g" README.md
-        - sed -i "s/php-latest-informational/php-${DEMYX_PHP_VERSION}-informational/g" README.md
-        - sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informational/g" README.md
-    - name: Push
-      script:
-        - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-        - docker push demyx/"$DEMYX_REPOSITORY"
-        - bash readme.sh
-        - git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/scratch.git
-        - git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
+    script:
+      - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+      - docker-compose up -d
+      - sleep 5
+      - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+      - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core is-installed
+      - docker exec -t demyx_wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
+      - DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
+      - DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
+      - DEMYX_PHP_VERSION=$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
+      - DEMYX_WP_VERSION=$(docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core version | sed -e 's/\r//g')
+      - sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
+      - sed -i "s/nginx-latest-informational/nginx-${DEMYX_NGINX_VERSION}-informational/g" README.md
+      - sed -i "s/php-latest-informational/php-${DEMYX_PHP_VERSION}-informational/g" README.md
+      - sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informational/g" README.md
+      - git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/scratch.git
+      - git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
 
-#after_success:
-#  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-#  - docker push demyx/"$DEMYX_REPOSITORY"
-#  - bash readme.sh
-
-#deploy:
-#  provider: pages
-#  skip_cleanup: true
-#  github_token: $DEMYX_GITHUB_TOKEN
-#  keep_history: true
-#  on:
-#    branch: master
+after_success:
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
+  - bash readme.sh
