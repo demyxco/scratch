@@ -210,12 +210,8 @@ RUN set -ex; \
 	unzip elgg.zip -d /usr/src/; \
 	rm elgg.zip; \
 	mv /usr/src/elgg-* /usr/src/elgg; \
-    cd /usr/src && git clone https://github.com/Elgg/Elgg.git; \
-    cd Elgg; \
-    composer install; \
 	apk del .elgg-deps && rm -rf /var/cache/apk/*
 
-COPY elgg-installer.php /usr/src/Elgg/elgg-installer.php
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY php.ini /etc/php7/php.ini
 COPY www.conf /etc/php7/php-fpm.d/www.conf

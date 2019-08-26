@@ -23,7 +23,9 @@ script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker-compose up -d
   - sleep 10
-  - docker exec -t elgg sh -c "php /usr/src/Elgg/elgg-installer.php; mv /usr/src/Elgg/elgg-config/settings.php /var/www/html/elgg-config; chow -R www-data:www-data /var/www/html; apk add curl; curl -I http://localhost"
+  - docker exec -t elgg sh -c "apk add git composer curl; cd /var/www && git clone https://github.com/Elgg/Elgg.git"
+  - docker cp elgg-installer.php elgg:/var/www/Elgg
+  - docker exec -t elgg sh -c "cd /var/www/Elgg; composer install; php elgg-installer.php; mv /var/www/Elgg/elgg-config/settings.php /var/www/html/elgg-config; chow -R www-data:www-data /var/www/html; curl -I http://localhost"
   #- docker exec -t elgg sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
 
 after_success:
