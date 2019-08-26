@@ -202,7 +202,7 @@ RUN set -ex; \
     mkdir -p /var/log/demyx
 
 RUN set -ex; \
-	apk add --no-cache --virtual .elgg-deps curl zip unzip jq composer git; \
+	apk add --no-cache --virtual .elgg-deps curl zip unzip; \
     export ELGG_VERSION=$(curl -sL https://api.github.com/repos/Elgg/Elgg/releases/latest | jq -r '.assets[].browser_download_url'); \
 	mkdir -p /var/www/html; \
     mkdir -p /var/www/data; \

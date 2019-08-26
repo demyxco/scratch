@@ -25,7 +25,7 @@ script:
   - sleep 10
   - docker exec -t elgg sh -c "apk add git composer curl; cd /var/www && git clone https://github.com/Elgg/Elgg.git"
   - docker cp elgg-installer.php elgg:/var/www/Elgg
-  - docker exec -t elgg sh -c "cd /var/www/Elgg; composer install; php elgg-installer.php; mv /var/www/Elgg/elgg-config/settings.php /var/www/html/elgg-config; chown -R www-data:www-data /var/www/html; php vendor/bin/elgg-cli plugins:list --status all"
+  - docker exec -t elgg sh -c "cd /var/www/Elgg; composer install; php elgg-installer.php; mv /var/www/Elgg/elgg-config/settings.php /var/www/html/elgg-config; chown -R www-data:www-data /var/www/html; cd /var/www/html && php vendor/bin/elgg-cli plugins:list --status all"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
