@@ -1,6 +1,6 @@
 FROM alpine
 
-LABEL sh.demyx.image demyx/nginx-php-wordpress
+LABEL sh.demyx.image demyx/elgg
 LABEL sh.demyx.maintainer Demyx <info@demyx.sh>
 LABEL sh.demyx.url https://demyx.sh
 LABEL sh.demyx.github https://github.com/demyxco/demyx
@@ -172,7 +172,6 @@ RUN set -ex; \
     php7-fpm \
 	php7-ftp \
 	php7-gd \
-    php7-gmp \
 	php7-iconv \
 	php7-imagick \
 	php7-json \
@@ -180,7 +179,8 @@ RUN set -ex; \
 	php7-mysqli \
     php7-opcache \
 	php7-openssl \
-    php7-pecl-mcrypt \
+	php7-pdo \
+	php7-pdo_mysql \
     php7-pecl-ssh2 \
     php7-phar \
 	php7-posix \
@@ -202,23 +202,23 @@ RUN set -ex; \
     mkdir -p /var/log/demyx
 
 RUN set -ex; \
-    apk add --no-cache --virtual .wp-deps; \
-    mkdir -p /var/www/html; \
-	wget https://wordpress.org/latest.tar.gz -qO /usr/src/latest.tar.gz; \
-	tar -xzf /usr/src/latest.tar.gz -C /usr/src; \
-	rm /usr/src/latest.tar.gz; \
-	chown -R www-data:www-data /usr/src/wordpress; \
-    apk del .wp-deps && rm -rf /var/cache/apk/*
+	apk add --no-cache --virtual .elgg-deps curl zip unzip jq; \
+    export ELGG_VERSION=$(curl -sL https://api.github.com/repos/Elgg/Elgg/releases/latest | jq -r '.assets[].browser_download_url'); \
+	mkdir -p /var/www/html; \
+	curl -o elgg.zip -fSL "$ELGG_VERSION"; \
+	unzip elgg.zip -d /usr/src/; \
+	rm elgg.zip; \
+	mv /usr/src/elgg-* /usr/src/elgg; \
+	chown -R www-data:www-data /usr/src/elgg; \
+	apk del .elgg-deps && rm -rf /var/cache/apk/*
 
-COPY common /etc/nginx/common
-COPY cache /etc/nginx/cache
-COPY demyx-entrypoint.sh /usr/local/bin/demyx-entrypoint
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY php.ini /etc/php7/php.ini
 COPY www.conf /etc/php7/php-fpm.d/www.conf
 COPY docker.conf /etc/php7/php-fpm.d/docker.conf
+COPY demyx-entrypoint.sh /usr/local/bin/demyx-entrypoint
 
-RUN chmod +x /usr/local/bin/demyx-entrypoint
+RUN chmod +x /usr/local/bin/demyx-entrypoint;
 
 EXPOSE 80
 

@@ -41,38 +41,35 @@ services:
       #- "traefik.frontend.headers.forceSTSHeader=true"
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
-      #- "traefik.frontend.headers.STSPreload=true"  
-  db:
-    container_name: demyx_db
+      #- "traefik.frontend.headers.STSPreload=true"
+  elgg_db:
+    container_name: elgg_db
     image: demyx/mariadb
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - demyx_db:/var/lib/mysql
+      - elgg_db:/var/lib/mysql
     environment:
       MARIADB_DATABASE: demyx_db
       MARIADB_USERNAME: demyx_user
       MARIADB_PASSWORD: demyx_password
       MARIADB_ROOT_PASSWORD: demyx_root_password
-  wp:
-    container_name: demyx_wp
-    image: demyx/nginx-php-wordpress
+  elgg:
+    container_name: elgg
+    image: demyx/elgg
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - demyx_wp:/var/www/html
+      - elgg:/var/www/html
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_NAME: demyx_db
-      WORDPRESS_DB_USER: demyx_user
-      WORDPRESS_DB_PASSWORD: demyx_password
+      ELGG_DOMAIN: domain.tld
       TZ: America/Los_Angeles
     labels:
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "traefik.frontend.rule=Host:domain.tld"
+      - "traefik.frontend.rule=Host:domain.tld,www.domain.tld"
       #- "traefik.frontend.redirect.entryPoint=https"
       #- "traefik.frontend.auth.basic.users=${DEMYX_STACK_AUTH}"
       #- "traefik.frontend.headers.forceSTSHeader=true"
@@ -80,10 +77,10 @@ services:
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"  
 volumes:
-  demyx_wp:
-    name: demyx_wp
-  demyx_db:
-    name: demyx_db
+  elgg:
+    name: elgg
+  elgg_db:
+    name: elgg_db
 networks:
   demyx:
     name: demyx
