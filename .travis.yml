@@ -22,8 +22,9 @@ before_install:
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker-compose up -d
-  - sleep 5
-  - docker exec -t elgg sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
+  - sleep 10
+  - docker exec -t elgg sh -c "php /usr/src/Elgg/elgg-installer.php; mv /usr/src/Elgg/elgg-config/settings.php /var/www/html/elgg-config; chow -R www-data:www-data /var/www/html; apk add curl; curl -I http://localhost"
+  #- docker exec -t elgg sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin

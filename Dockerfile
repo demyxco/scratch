@@ -202,23 +202,29 @@ RUN set -ex; \
     mkdir -p /var/log/demyx
 
 RUN set -ex; \
-	apk add --no-cache --virtual .elgg-deps curl zip unzip jq; \
+	apk add --no-cache --virtual .elgg-deps curl zip unzip jq composer git; \
     export ELGG_VERSION=$(curl -sL https://api.github.com/repos/Elgg/Elgg/releases/latest | jq -r '.assets[].browser_download_url'); \
 	mkdir -p /var/www/html; \
+    mkdir -p /var/www/data; \
 	curl -o elgg.zip -fSL "$ELGG_VERSION"; \
 	unzip elgg.zip -d /usr/src/; \
 	rm elgg.zip; \
 	mv /usr/src/elgg-* /usr/src/elgg; \
-	chown -R www-data:www-data /usr/src/elgg; \
+    cd /usr/src && git clone https://github.com/Elgg/Elgg.git; \
+    cd Elgg; \
+    composer install; \
 	apk del .elgg-deps && rm -rf /var/cache/apk/*
 
+COPY elgg-installer.php /usr/src/Elgg/elgg-installer.php
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY php.ini /etc/php7/php.ini
 COPY www.conf /etc/php7/php-fpm.d/www.conf
 COPY docker.conf /etc/php7/php-fpm.d/docker.conf
 COPY demyx-entrypoint.sh /usr/local/bin/demyx-entrypoint
 
-RUN chmod +x /usr/local/bin/demyx-entrypoint;
+RUN chown -R www-data:www-data /usr/src/elgg; \
+    chown -R www-data:www-data /var/www/data; \
+    chmod +x /usr/local/bin/demyx-entrypoint
 
 EXPOSE 80
 
