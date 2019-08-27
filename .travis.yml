@@ -11,11 +11,13 @@ env:
 
 before_install:
   - docker pull alpine
+  - docker pull webhippie/mariadb
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-  - docker run -d --rm --name et demyx/"$DEMYX_REPOSITORY"
-  - docker exec -t et etserver --version
+  - docker run -d --rm --name mariadb -e MARIADB_ROOT_PASSWORD=demyx demyx/"$DEMYX_REPOSITORY"
+  - sleep 5
+  - docker exec -t mariadb mariadb --version
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin

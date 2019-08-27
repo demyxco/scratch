@@ -1,117 +1,63 @@
-# eternal-terminal
-[![Build Status](https://img.shields.io/travis/demyxco/eternal-terminal?style=flat)](https://travis-ci.org/demyxco/eternal-terminal)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/eternal-terminal?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
-[![Alpine](https://img.shields.io/badge/alpine-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
-[![OpenSSH](https://img.shields.io/badge/openssh-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
-[![eternal-erminal](https://img.shields.io/badge/et-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
+# mariadb
+[![Build Status](https://img.shields.io/travis/demyxco/mariadb?style=flat)](https://travis-ci.org/demyxco/mariadb)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/mariadb?style=flat&color=blue)](https://hub.docker.com/r/demyx/mariadb)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/mariadb)
+[![Alpine](https://img.shields.io/badge/alpine-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/mariadb)
+[![MariaDB](https://img.shields.io/badge/mariadb-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/mariadb)
 
-Eternal Terminal (ET) is a remote shell that automatically reconnects without interrupting the session.
+MariaDB is a community-developed fork of the MySQL relational database management system intended to remain free under the GNU GPL. Development is led by some of the original developers of MySQL, who forked it due to concerns over its acquisition by Oracle Corporation. Contributors are required to share their copyright with the MariaDB Foundation. Image is built from `webhippie/mariadb:latest`.
 
 TITLE | DESCRIPTION
 --- | ---
-SSH PORT | 22
-ET PORT | 2022
+PORT | 3306
+TIMEZONE | America/Los_Angeles
 
 # Updates
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
-[![Watches](https://img.shields.io/github/watchers/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
-[![Stars](https://img.shields.io/github/stars/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
-[![Forks](https://img.shields.io/github/forks/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/mariadb?style=flat&color=blue)](https://github.com/demyxco/mariadb)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/mariadb?style=flat&color=blue)](https://github.com/demyxco/mariadb)
+[![Watches](https://img.shields.io/github/watchers/demyxco/mariadb?style=flat&color=blue)](https://github.com/demyxco/mariadb)
+[![Stars](https://img.shields.io/github/stars/demyxco/mariadb?style=flat&color=blue)](https://github.com/demyxco/mariadb)
+[![Forks](https://img.shields.io/github/forks/demyxco/mariadb?style=flat&color=blue)](https://github.com/demyxco/mariadb)
 
 * Auto built weekly on Sundays (America/Los_Angeles)
 * Rolling release updates
 
 # Usage
-This config requires no .toml for Traefik and is ready to go when running: 
-`docker-compose up -d`. If you want SSL, just remove the comments and make sure you have acme.json chmod to 600 (`touch acme.json; chmod 600 acme.json`) before mounting.
-
 ```
-version: "3.7"
-
-services:
-  traefik:
-    image: traefik
-    container_name: demyx_traefik
-    restart: unless-stopped
-    command: 
-      - --api
-      - --api.statistics.recenterrors=100
-      - --docker
-      - --docker.watch=true
-      - --docker.exposedbydefault=false
-      - "--entrypoints=Name:http Address::80"
-      #- "--entrypoints=Name:https Address::443 TLS"
-      - --defaultentrypoints=http
-      #- --defaultentrypoints=http,https
-      #- --acme
-      #- --acme.email=info@domain.tld
-      #- --acme.storage=/etc/traefik/acme.json
-      #- --acme.entrypoint=https
-      #- --acme.onhostrule=true
-      #- --acme.httpchallenge.entrypoint=http
-      - --logLevel=INFO
-      - --accessLog.filePath=/etc/traefik/access.log
-      - --traefikLog.filePath=/etc/traefik/traefik.log
-    networks:
-      - demyx
-    ports:
-      - 80:80
-      #- 443:443
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      #- ./acme.json:/etc/traefik/acme.json # chmod 600
-    labels:
-      - "traefik.enable=true"
-      - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:traefik.domain.tld"
-      #- "traefik.frontend.redirect.entryPoint=https"
-      #- "traefik.frontend.auth.basic.users=${DEMYX_STACK_AUTH}"
-      #- "traefik.frontend.headers.forceSTSHeader=true"
-      #- "traefik.frontend.headers.STSSeconds=315360000"
-      #- "traefik.frontend.headers.STSIncludeSubdomains=true"
-      #- "traefik.frontend.headers.STSPreload=true"
-  eternal-terminal_db:
-    container_name: eternal-terminal_db
+mariadb:
+    container_name: mariadb
     image: demyx/mariadb
     restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - eternal-terminal_db:/var/lib/mysql
     environment:
       MARIADB_DATABASE: demyx_db
       MARIADB_USERNAME: demyx_user
       MARIADB_PASSWORD: demyx_password
-      MARIADB_ROOT_PASSWORD: demyx_root_password
-  eternal-terminal:
-    container_name: eternal-terminal
-    image: demyx/eternal-terminal
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - eternal-terminal:/var/www/html
-    environment:
-      eternal-terminal_DOMAIN: domain.tld
+      MARIADB_ROOT_PASSWORD: demyx_root_password # mandatory
+      MARIADB_DEFAULT_CHARACTER_SET: utf8
+      MARIADB_CHARACTER_SET_SERVER: utf8
+      MARIADB_COLLATION_SERVER: utf8_general_ci
+      MARIADB_KEY_BUFFER_SIZE: 32M
+      MARIADB_MAX_ALLOWED_PACKET: 16M
+      MARIADB_TABLE_OPEN_CACHE: 2000
+      MARIADB_SORT_BUFFER_SIZE: 4M
+      MARIADB_NET_BUFFER_SIZE: 4M
+      MARIADB_READ_BUFFER_SIZE: 2M
+      MARIADB_READ_RND_BUFFER_SIZE: 1M
+      MARIADB_MYISAM_SORT_BUFFER_SIZE: 32M
+      MARIADB_LOG_BIN: mysql-bin
+      MARIADB_BINLOG_FORMAT: mixed
+      MARIADB_SERVER_ID: 1
+      MARIADB_INNODB_DATA_FILE_PATH: ibdata1:10M:autoextend
+      MARIADB_INNODB_BUFFER_POOL_SIZE: 32M
+      MARIADB_INNODB_LOG_FILE_SIZE: 5M
+      MARIADB_INNODB_LOG_BUFFER_SIZE: 8M
+      MARIADB_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 1
+      MARIADB_INNODB_LOCK_WAIT_TIMEOUT: 50
+      MARIADB_INNODB_USE_NATIVE_AIO: 1
+      MARIADB_READ_BUFFER: 2M
+      MARIADB_WRITE_BUFFER: 2M
+      MARIADB_MAX_CONNECTIONS: 100
       TZ: America/Los_Angeles
-    labels:
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "traefik.frontend.rule=Host:domain.tld,www.domain.tld"
-      #- "traefik.frontend.redirect.entryPoint=https"
-      #- "traefik.frontend.auth.basic.users=${DEMYX_STACK_AUTH}"
-      #- "traefik.frontend.headers.forceSTSHeader=true"
-      #- "traefik.frontend.headers.STSSeconds=315360000"
-      #- "traefik.frontend.headers.STSIncludeSubdomains=true"
-      #- "traefik.frontend.headers.STSPreload=true"  
-volumes:
-  eternal-terminal:
-    name: eternal-terminal
-  eternal-terminal_db:
-    name: eternal-terminal_db
-networks:
-  demyx:
-    name: demyx
+    volumes:
+      - ./db:/var/lib/mysql
 ```

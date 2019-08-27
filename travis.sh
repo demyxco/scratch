@@ -4,9 +4,8 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Get versions
-DEMYX_ALPINE_VERSION=$(docker exec -t et cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-DEMYX_OPENSSH_VERSION=$(docker exec -t et ssh -V | awk -F '[,]' '{print $1}' | cut -c 9- | sed -e 's/\r//g')
-DEMYX_ET_VERSION=$(docker exec -t et etserver --version | awk -F '[ ]' '{print $3}' | sed -e 's/\r//g')
+DEMYX_ALPINE_VERSION=$(docker exec -t mariadb cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
+DEMYX_MARIADB_VERSION=$(docker exec -t mariadb mysql --version | awk -F '[ ]' '{print $6}' | awk -F '[,]' '{print $1}'  | sed -e 's/\r//g')
 
 # Replace the README.md
 [[ -f README.md ]] && rm README.md
@@ -14,8 +13,7 @@ cp .readme README.md
 
 # Replace latest with actual versions
 sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
-sed -i "s/openssh-latest-informational/openssh-${DEMYX_OPENSSH_VERSION}-informational/g" README.md
-sed -i "s/et-latest-informational/et-${DEMYX_ET_VERSION}-informational/g" README.md
+sed -i "s/mariadb-latest-informational/mariadb-${DEMYX_MARIADB_VERSION}-informational/g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
