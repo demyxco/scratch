@@ -5,7 +5,7 @@ IFS=$'\n\t'
 
 # Get versions
 DEMYX_ALPINE_VERSION=$(docker exec -t mariadb cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-DEMYX_MARIADB_VERSION=$(docker exec -t mariadb mysql --version | awk -F '[ ]' '{print $6}' | awk -F '[,]' '{print $1}'  | sed -e 's/\r//g')
+DEMYX_MARIADB_VERSION=$(docker exec -t mariadb mysql --version | awk -F '[ ]' '{print $6}' | awk -F '[,]' '{print $1}' | sed 's/-MariaDB//g' | sed -e 's/\r//g')
 
 # Replace the README.md
 [[ -f README.md ]] && rm README.md
