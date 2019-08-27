@@ -1,15 +1,21 @@
-#!/bin/bash
+#!/bin/sh
 
-if [[ ! -d /var/www/html/mod ]]; then
-	echo "Elgg is missing, installing now."
-	cp -R /usr/src/elgg/* /var/www/html
+if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+	ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 fi
 
-sed -i "s/ELGG_DOMAIN/$ELGG_DOMAIN/g" /etc/nginx/nginx.conf
+if [ -f /home/demyx/.ssh/ssh_host_rsa_key ]; then
+	cp /home/demyx/.ssh/ssh_host_rsa_key /etc/ssh
+	cp /home/demyx/.ssh/ssh_host_rsa_key.pub /etc/ssh
+else
+	cp /etc/ssh/ssh_host_rsa_key /home/demyx/.ssh
+	cp /etc/ssh/ssh_host_rsa_key.pub /home/demyx/.ssh
+fi
 
-find /var/www/html -type d -print0 | xargs -0 chmod 0755
-find /var/www/html -type f -print0 | xargs -0 chmod 0644
-chown -R www-data:www-data /var/www/html
+chown -R demyx:demyx /home/demyx
+chmod 700 /home/demyx/.ssh
+chmod 644 /home/demyx/.ssh/authorized_keys
+chmod 600 /etc/ssh/ssh_host_rsa_key
 
-php-fpm -D
-nginx -g 'daemon off;'
+/usr/sbin/sshd
+/usr/local/bin/etserver -v 9 -logtostdout true

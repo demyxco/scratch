@@ -1,31 +1,24 @@
-# elgg
-[![Build Status](https://img.shields.io/travis/demyxco/elgg?style=flat)](https://travis-ci.org/demyxco/elgg)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/elgg?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![Docker Layers](https://img.shields.io/microbadger/layers/demyx/elgg?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![Docker Image Size](https://img.shields.io/microbadger/image-size/demyx/elgg?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![Alpine](https://img.shields.io/badge/alpine-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![NGINX](https://img.shields.io/badge/nginx-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![PHP](https://img.shields.io/badge/php-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
-[![Elgg](https://img.shields.io/badge/elgg-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/elgg)
+# eternal-terminal
+[![Build Status](https://img.shields.io/travis/demyxco/eternal-terminal?style=flat)](https://travis-ci.org/demyxco/eternal-terminal)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/eternal-terminal?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
+[![Alpine](https://img.shields.io/badge/alpine-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
+[![OpenSSH](https://img.shields.io/badge/openssh-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
+[![eternal-erminal](https://img.shields.io/badge/et-latest-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/eternal-terminal)
 
-Elgg is an award-winning open source social networking engine that provides a robust framework on which to build all kinds of social environments, from a campus wide social network for your university, school or college or an internal collaborative platform for your organization through to a brand-building communications tool for your company and its clients. 
+Eternal Terminal (ET) is a remote shell that automatically reconnects without interrupting the session.
 
 TITLE | DESCRIPTION
 --- | ---
-USER<br />GROUP | www-data (82)<br />www-data (82)
-WORKDIR | /var/www/html
-PORT | 80
-TIMEZONE | America/Los_Angeles
-PHP | /etc/php7/php.ini<br />/etc/php7/php-fpm.d/php-fpm.conf
-NGINX | /etc/nginx/nginx.conf<br />/etc/nginx/cache<br />/etc/nginx/common<br />/etc/nginx/modules<br />
+SSH PORT | 22
+ET PORT | 2022
 
 # Updates
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/elgg?style=flat&color=blue)](https://github.com/demyxco/elgg)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/elgg?style=flat&color=blue)](https://github.com/demyxco/elgg)
-[![Watches](https://img.shields.io/github/watchers/demyxco/elgg?style=flat&color=blue)](https://github.com/demyxco/elgg)
-[![Stars](https://img.shields.io/github/stars/demyxco/elgg?style=flat&color=blue)](https://github.com/demyxco/elgg)
-[![Forks](https://img.shields.io/github/forks/demyxco/elgg?style=flat&color=blue)](https://github.com/demyxco/elgg)
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
+[![Watches](https://img.shields.io/github/watchers/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
+[![Stars](https://img.shields.io/github/stars/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
+[![Forks](https://img.shields.io/github/forks/demyxco/eternal-terminal?style=flat&color=blue)](https://github.com/demyxco/eternal-terminal)
 
 * Auto built weekly on Sundays (America/Los_Angeles)
 * Rolling release updates
@@ -79,29 +72,29 @@ services:
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"
-  elgg_db:
-    container_name: elgg_db
+  eternal-terminal_db:
+    container_name: eternal-terminal_db
     image: demyx/mariadb
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - elgg_db:/var/lib/mysql
+      - eternal-terminal_db:/var/lib/mysql
     environment:
       MARIADB_DATABASE: demyx_db
       MARIADB_USERNAME: demyx_user
       MARIADB_PASSWORD: demyx_password
       MARIADB_ROOT_PASSWORD: demyx_root_password
-  elgg:
-    container_name: elgg
-    image: demyx/elgg
+  eternal-terminal:
+    container_name: eternal-terminal
+    image: demyx/eternal-terminal
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - elgg:/var/www/html
+      - eternal-terminal:/var/www/html
     environment:
-      ELGG_DOMAIN: domain.tld
+      eternal-terminal_DOMAIN: domain.tld
       TZ: America/Los_Angeles
     labels:
       - "traefik.enable=true"
@@ -114,10 +107,10 @@ services:
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"  
 volumes:
-  elgg:
-    name: elgg
-  elgg_db:
-    name: elgg_db
+  eternal-terminal:
+    name: eternal-terminal
+  eternal-terminal_db:
+    name: eternal-terminal_db
 networks:
   demyx:
     name: demyx
