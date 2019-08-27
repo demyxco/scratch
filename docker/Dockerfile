@@ -10,7 +10,7 @@ RUN set -ex; \
     apk add --no-cache --update bash tzdata curl zsh openssh sudo gnupg jq dumb-init htop rsync git
 
 RUN set -ex; \
-    export DEMYX_DOCKER_BINARY=$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | jq -r '.name'); \
+    export DEMYX_DOCKER_BINARY="$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | jq -r '.name')"; \
     mkdir /usr/src; \
     wget -P /usr/src/ https://download.docker.com/linux/static/stable/x86_64/docker-"$DEMYX_DOCKER_BINARY".tgz; \
     tar -xzf /usr/src/docker-"$DEMYX_DOCKER_BINARY".tgz -C /usr/src; \

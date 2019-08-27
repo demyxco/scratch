@@ -5,7 +5,7 @@ IFS=$'\n\t'
 
 # Get versions
 DEMYX_ALPINE_VERSION=$(docker exec -t demyx cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-DEMYX_DOCKER_VERSION=$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | jq -r '.name' | sed -e 's/\r//g')
+DEMYX_DOCKER_VERSION="$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | jq -r '.name' | sed -e 's/\r//g')"
 
 # Replace the README.md
 [[ -f README.md ]] && rm README.md
