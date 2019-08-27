@@ -17,7 +17,7 @@ script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker run -d --rm --name mariadb -e MARIADB_ROOT_PASSWORD=demyx demyx/"$DEMYX_REPOSITORY"
   - sleep 5
-  - docker exec -t mariadb mariadb --version
+  - docker exec -t mariadb mysql --version
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
