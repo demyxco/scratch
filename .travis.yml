@@ -12,6 +12,8 @@ env:
 
 before_install:
   - docker pull alpine
+  - docker pull traefik
+  - docker pull pyouroboros/ouroboros
   - docker pull demyx/nginx-php-wordpress
   - docker pull demyx/mariadb
   - docker pull demyx/utilities
