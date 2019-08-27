@@ -11,11 +11,11 @@ env:
   - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
 
 before_install:
-  - sudo apt-get install jq
   - docker pull alpine
   - docker pull demyx/nginx-php-wordpress
   - docker pull demyx/mariadb
   - docker pull demyx/utilities
+  - docker pull demyx/docker-compose
   - docker pull wordpress:cli
 
 script:
