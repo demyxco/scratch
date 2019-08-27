@@ -24,7 +24,7 @@ script:
   - cd docker && docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker run -dt --rm --name demyx -v /var/run/docker.sock:/var/run/docker.sock:ro -v demyx:/demyx demyx/"$DEMYX_REPOSITORY"
   - sleep 5
-  - docker exec -t demyx demyx exec install --domain=domain.tld --email=info@domain.tld --user=demyx --pass=demyx
+  - docker exec -t demyx demyx install --domain=domain.tld --email=info@domain.tld --user=demyx --pass=demyx
   - docker exec -t demyx demyx motd
   - docker exec -t demyx demyx run domain.tld --auth --cdn --cache
   - docker exec -t demyx demyx wp domain.tld core is-installed
