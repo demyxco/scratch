@@ -14,8 +14,8 @@ cp .readme README.md
 
 # Replace latest with actual versions
 sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
-sed -i "s/openssh-latest-informational/openssh-${DEMYX_NGINX_VERSION}-informational/g" README.md
-sed -i "s/et-latest-informational/et-${DEMYX_PHP_VERSION}-informational/g" README.md
+sed -i "s/openssh-latest-informational/openssh-${DEMYX_OPENSSH_VERSION}-informational/g" README.md
+sed -i "s/et-latest-informational/et-${DEMYX_ET_VERSION}-informational/g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
