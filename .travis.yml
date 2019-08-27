@@ -13,15 +13,20 @@ env:
 before_install:
   - sudo apt-get install jq
   - docker pull alpine
+  - docker pull demyx/nginx-php-wordpress
+  - docker pull demyx/mariadb
+  - docker pull demyx/utilities
+  - docker pull wordpress:cli
 
 script:
   - cd docker && docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker run -dt --rm --name demyx -v /var/run/docker.sock:/var/run/docker.sock:ro -v demyx:/demyx demyx/"$DEMYX_REPOSITORY"
   - sleep 5
   - docker exec -t demyx demyx motd
-  - docker exec -t demyx demyx run domain.tld --cache
+  - docker exec -t demyx demyx run domain.tld --auth --cdn --cache
+  - docker exec -t demyx demyx wp domain.tld core is-installed
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
-  - bash travis.sh
+  - cd .. && bash travis.sh
