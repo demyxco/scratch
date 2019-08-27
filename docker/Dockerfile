@@ -6,6 +6,8 @@ LABEL sh.demyx.url https://demyx.sh
 LABEL sh.demyx.github https://github.com/demyxco/demyx
 LABEL sh.demyx.registry https://hub.docker.com/u/demyx
 
+ENV TZ America/Los_Angeles
+
 RUN set -ex; \
     apk add --no-cache --update bash tzdata curl zsh openssh sudo gnupg jq dumb-init htop rsync git
 
