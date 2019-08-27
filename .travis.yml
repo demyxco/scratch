@@ -19,7 +19,7 @@ before_install:
   - docker pull wordpress:cli
 
 script:
-  - cd docker && docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" docker/.
   - docker run -dt --rm --name demyx -v /var/run/docker.sock:/var/run/docker.sock:ro -v demyx:/demyx demyx/"$DEMYX_REPOSITORY"
   - sleep 5
   - docker exec -t demyx demyx motd
@@ -29,4 +29,4 @@ script:
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
-  - cd .. && bash travis.sh
+  - bash travis.sh
