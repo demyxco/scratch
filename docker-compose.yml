@@ -63,8 +63,6 @@ services:
       - demyx
     volumes:
       - elgg:/var/www/html
-    depends_on:
-      - elgg_db
     environment:
       ELGG_DOMAIN: domain.tld
       ELGG_DBUSER: demyx_user
