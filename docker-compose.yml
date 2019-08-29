@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+  elgg_db:
+    container_name: elgg_db
+    image: demyx/mariadb
+    restart: unless-stopped
+    networks:
+      - demyx
+    volumes:
+      - elgg_db:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: demyx_db
+      MARIADB_USERNAME: demyx_user
+      MARIADB_PASSWORD: demyx_password
+      MARIADB_ROOT_PASSWORD: demyx_root_password
+  elgg:
+    container_name: elgg
+    image: demyx/elgg
+    restart: unless-stopped
+    networks:
+      - demyx
+    volumes:
+      - elgg:/var/www/html
+    depends_on:
+      - elgg_db
+    environment:
+      ELGG_DOMAIN: semver.tk
+      ELGG_DBUSER: demyx_user
+      ELGG_DBPASSWORD: demyx_password
+      ELGG_DBNAME: demyx_db
+      ELGG_DBHOST: elgg_db
+      ELGG_SITENAME: demyx
+      ELGG_SITEEMAIL: info@domain.tld
+      ELGG_WWWROOT: https://semver.tk/
+      ELGG_DISPLAYNAME: demyx
+      ELGG_EMAIL: info@domain.tld
+      ELGG_USERNAME: demyx
+      ELGG_PASSWORD: demyx_password
+      TZ: America/Los_Angeles
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:semver.tk,www.semver.tk"
+      #- "traefik.frontend.redirect.entryPoint=https"
+      #- "traefik.frontend.auth.basic.users=${DEMYX_STACK_AUTH}"
+      #- "traefik.frontend.headers.forceSTSHeader=true"
+      #- "traefik.frontend.headers.STSSeconds=315360000"
+      #- "traefik.frontend.headers.STSIncludeSubdomains=true"
+      #- "traefik.frontend.headers.STSPreload=true"
+volumes:
+  elgg:
+    name: elgg
+  elgg_db:
+    name: elgg_db
+networks:
+  demyx:
+    name: demyx

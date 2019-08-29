@@ -1,32 +1,26 @@
 notifications:
   email:
     on_success: never
-    #on_failure: always
     on_failure: never
 
 services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
+  - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=elgg
 
 before_install:
+  - sudo apt-get install jq
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
   - docker pull alpine
-  - docker pull demyx/nginx-php-wordpress
   - docker pull demyx/mariadb
-  - docker pull demyx/utilities
-  - docker pull demyx/docker-compose
-  - docker pull wordpress:cli
+  - docker pull traefik
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" docker/.
-  - docker run -dt --rm --name demyx -v /var/run/docker.sock:/var/run/docker.sock:ro -v demyx:/demyx demyx/"$DEMYX_REPOSITORY"
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker-compose up -d
   - sleep 5
-  - docker exec -t demyx demyx motd
-  - docker exec -t demyx demyx run domain.tld --auth --cdn --cache
-  - docker exec -t demyx demyx wp domain.tld core is-installed
-
-after_success:
-  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-  - docker push demyx/"$DEMYX_REPOSITORY"
-  - bash travis.sh
+  - docker exec -t elgg sh -c "php vendor/bin/elgg-cli plugins:list --status all"
