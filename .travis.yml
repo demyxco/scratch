@@ -18,3 +18,9 @@ before_install:
   - docker pull alpine
   - docker pull demyx/mariadb
   - docker pull traefik
+
+script:
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker-compose up -d
+  - sleep 5
+  - docker exec -t elgg sh -c "php vendor/bin/elgg-cli plugins:list --status all"
