@@ -5,9 +5,7 @@
 [![Alpine](https://img.shields.io/badge/alpine-3.10.2-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Docker Client](https://img.shields.io/badge/docker_client-19.03.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 
-A simple bash CLI wrapper for Docker to automate WordPress installations. Traefik for reverse proxy with Lets Encrypt SSL. WordPress sites are powered by NGINX, PHP, and MariaDB.
-
-Demyx is now a Docker image and the code base has been completely rewritten, think of this as a "Version 2." The plan was to not "pollute" the host OS and go full Docker mode. This makes it easier to have a controlled and predictable environment. One can say Demyx is "Linux OS agnostic," as long as you have Docker installed.
+testing 123
 
 <p align="center">
 <img  src="https://i.imgur.com/sYNrgFh.gif">
