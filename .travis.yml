@@ -1,13 +1,13 @@
 notifications:
   email:
     on_success: never
-    on_failure: never
+    on_failure: always
 
 services:
   - docker
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=elgg
+  - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
 
 before_install:
   - sudo apt-get install jq
@@ -18,11 +18,17 @@ before_install:
   - docker pull alpine
   - docker pull demyx/mariadb
   - docker pull traefik
+  - docker pull wordpress:cli
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-  - docker-compose up -d elgg_db
-  - sleep 5
   - docker-compose up -d
-  - sleep 20
-  - docker exec -t elgg sh -c "php vendor/bin/elgg-cli plugins:list --status all"
+  - sleep 5
+  - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+  - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core is-installed
+  - docker exec -t demyx_wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
+
+after_success:
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
+  - bash travis.sh

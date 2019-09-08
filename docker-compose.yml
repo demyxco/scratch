@@ -41,59 +41,71 @@ services:
       #- "traefik.frontend.headers.forceSTSHeader=true"
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
-      #- "traefik.frontend.headers.STSPreload=true"
-  elgg_db:
-    container_name: elgg_db
+      #- "traefik.frontend.headers.STSPreload=true"  
+  db:
+    container_name: demyx_db
     image: demyx/mariadb
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - elgg_db:/var/lib/mysql
+      - demyx_db:/var/lib/mysql
     environment:
       MARIADB_DATABASE: demyx_db
       MARIADB_USERNAME: demyx_user
       MARIADB_PASSWORD: demyx_password
       MARIADB_ROOT_PASSWORD: demyx_root_password
-  elgg:
-    container_name: elgg
-    image: demyx/elgg
+  nginx:
+    container_name: demyx_nginx
+    image: demyx/nginx
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - elgg:/var/www/html
-    depends_on:
-      - elgg_db
+      - demyx_wp:/var/www/html
     environment:
-      ELGG_DOMAIN: domain.tld
-      ELGG_DBUSER: demyx_user
-      ELGG_DBPASSWORD: demyx_password
-      ELGG_DBNAME: demyx_db
-      ELGG_DBHOST: elgg_db
-      ELGG_SITENAME: demyx
-      ELGG_SITEEMAIL: info@domain.tld
-      ELGG_WWWROOT: http://domain.tld/
-      ELGG_DISPLAYNAME: demyx
-      ELGG_EMAIL: info@domain.tld
-      ELGG_USERNAME: demyx
-      ELGG_PASSWORD: demyx_password
+      WORDPRESS: "true"
+      WORDPRESS_SERVICE: wp
+      NGINX_DOMAIN: domain.tld
+      NGINX_UPLOAD_LIMIT: 128M
+      NGINX_CACHE: "off"
+      NGINX_RATE_LIMIT: "off"
+      NGINX_BASIC_AUTH: 
       TZ: America/Los_Angeles
     labels:
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "traefik.frontend.rule=Host:domain.tld,www.domain.tld"
+      - "traefik.frontend.rule=Host:domain.tld"
       #- "traefik.frontend.redirect.entryPoint=https"
       #- "traefik.frontend.auth.basic.users=${DEMYX_STACK_AUTH}"
       #- "traefik.frontend.headers.forceSTSHeader=true"
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"
+  wp:
+    container_name: demyx_wp
+    image: demyx/wordpress
+    restart: unless-stopped
+    networks:
+      - demyx
+    volumes:
+      - demyx_wp:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: demyx_db
+      WORDPRESS_DB_USER: demyx_user
+      WORDPRESS_DB_PASSWORD: demyx_password
+      WORDPRESS_DOMAIN: domain.tld
+      WORDPRESS_UPLOAD_LIMIT: 128M
+      WORDPRESS_PHP_MEMORY: 256M
+      WORDPRESS_PHP_MAX_EXECUTION_TIME: 300
+      WORDPRESS_PHP_OPCACHE: "on"
+      TZ: America/Los_Angeles
 volumes:
-  elgg:
-    name: elgg
-  elgg_db:
-    name: elgg_db
+  demyx_wp:
+    name: demyx_wp
+  demyx_db:
+    name: demyx_db
 networks:
   demyx:
     name: demyx
