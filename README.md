@@ -3,7 +3,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/demyx/code?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
 [![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
 [![Ubuntu](https://img.shields.io/badge/ubuntu-18.04-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
-[![code-server](https://img.shields.io/badge/code--informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
+[![code-server](https://img.shields.io/badge/code-[38;2;0;143;191m[0m2.1523-vsc1.38.1[0m-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 
 code-server is VS Code running on a remote server, accessible through the browser.
