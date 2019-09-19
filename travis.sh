@@ -3,7 +3,7 @@
 
 # Get versions
 DEMYX_UBUNTU_VERSION=$(docker exec -t demyx_code cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed 's/"//g' | sed -e 's/\r//g')
-DEMYX_CODE_VERSION=$(docker exec -t demyx_code code-server --version | head -n1 | sed "s|info  ||g" | sed "s|-|--|g" | sed "s| ||g" | sed -e 's/\r//g')
+DEMYX_CODE_VERSION=$(docker exec -t demyx_code code-server --version | head -n1 | sed "s|info  ||g" | sed "s|-|--|g" | sed "s|-|-|g" | sed "s|- |-|g" | sed -e 's/\r//g')
 
 # Replace the README.md
 [[ -f README.md ]] && rm README.md
