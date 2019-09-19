@@ -26,5 +26,4 @@ script:
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY":latest
-  #- docker push demyx/"$DEMYX_REPOSITORY":wp
   - bash travis.sh
