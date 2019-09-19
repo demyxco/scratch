@@ -12,8 +12,8 @@ cp .readme README.md
 # Replace latest with actual versions
 sed -i "s/ubuntu-latest-informational/ubuntu-${DEMYX_UBUNTU_VERSION}-informational/g" README.md
 sed -i "s/code-latest-informational/code-${DEMYX_CODE_VERSION}-informational/g" README.md
-sed -i "s|[38;2;0;143;191m||g" README.md
-sed -i "s|[0m||g" README.md
+sed -i "s|[38;2;0;143;191m[0m||g" README.md
+sed -i "s|[0m||g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
