@@ -16,11 +16,11 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - docker pull codercom/code-server:v2
-  - docker pull traefik:v1.7.16
 
 script:
-  - cd tag-latest && docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":latest .
-  - docker-compose up -d
+  - cd tag-latest
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":latest .
+  - docker-compose up -d code
   - sleep 5
   - docker exec -t demyx_code code-server --version
 

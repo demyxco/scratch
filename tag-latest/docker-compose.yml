@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   traefik:
-    image: traefik
+    image: traefik:v1.7.16
     container_name: demyx_traefik
     restart: unless-stopped
     command: 
@@ -17,13 +17,13 @@ services:
       #- --defaultentrypoints=http,https
       #- --acme
       #- --acme.email=info@domain.tld
-      #- --acme.storage=/etc/traefik/acme.json
+      #- --acme.storage=/demyx/acme.json
       #- --acme.entrypoint=https
       #- --acme.onhostrule=true
       #- --acme.httpchallenge.entrypoint=http
       - --logLevel=INFO
-      - --accessLog.filePath=/etc/traefik/access.log
-      - --traefikLog.filePath=/etc/traefik/traefik.log
+      - --accessLog.filePath=/demyx/access.log
+      - --traefikLog.filePath=/demyx/traefik.log
     networks:
       - demyx
     ports:
@@ -31,7 +31,7 @@ services:
       #- 443:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      #- ./acme.json:/etc/traefik/acme.json # chmod 600
+      #- demyx_traefik:/demyx/acme.json
     labels:
       - "traefik.enable=true"
       - "traefik.port=8080"
@@ -42,70 +42,33 @@ services:
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"  
-  db:
-    container_name: demyx_db
-    image: demyx/mariadb
+  code:
+    container_name: demyx_code
+    image: demyx/code
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - demyx_db:/var/lib/mysql
+      - demyx_code:/home/coder
     environment:
-      MARIADB_DATABASE: demyx_db
-      MARIADB_USERNAME: demyx_user
-      MARIADB_PASSWORD: demyx_password
-      MARIADB_ROOT_PASSWORD: demyx_root_password
-  nginx:
-    container_name: demyx_nginx
-    image: demyx/nginx
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - demyx_wp:/var/www/html
-    environment:
-      WORDPRESS: "true"
-      WORDPRESS_SERVICE: wp
-      NGINX_DOMAIN: domain.tld
-      NGINX_UPLOAD_LIMIT: 128M
-      NGINX_CACHE: "off"
-      NGINX_RATE_LIMIT: "off"
-      NGINX_BASIC_AUTH: 
+      CODER_AUTH: true
+      PASSWORD: demyx
       TZ: America/Los_Angeles
     labels:
       - "traefik.enable=true"
-      - "traefik.port=80"
+      - "traefik.port=8080"
       - "traefik.frontend.rule=Host:domain.tld"
       #- "traefik.frontend.redirect.entryPoint=https"
-      #- "traefik.frontend.auth.basic.users=${DEMYX_STACK_AUTH}"
       #- "traefik.frontend.headers.forceSTSHeader=true"
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"
-  wp:
-    container_name: demyx_wp
-    image: demyx/wordpress
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - demyx_wp:/var/www/html
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_NAME: demyx_db
-      WORDPRESS_DB_USER: demyx_user
-      WORDPRESS_DB_PASSWORD: demyx_password
-      WORDPRESS_DOMAIN: domain.tld
-      WORDPRESS_UPLOAD_LIMIT: 128M
-      WORDPRESS_PHP_MEMORY: 256M
-      WORDPRESS_PHP_MAX_EXECUTION_TIME: 300
-      WORDPRESS_PHP_OPCACHE: "on"
-      TZ: America/Los_Angeles
 volumes:
-  demyx_wp:
-    name: demyx_wp
-  demyx_db:
-    name: demyx_db
+  demyx_code:
+    name: demyx_code
+  demyx_traefik:
+    name: demyx_traefik
 networks:
   demyx:
     name: demyx
+    
