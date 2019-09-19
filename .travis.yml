@@ -24,6 +24,6 @@ script:
   - docker exec -t demyx_code code-server --version
 
 after_success:
-  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-  - docker push demyx/"$DEMYX_REPOSITORY"
+  #- echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  #- docker push demyx/"$DEMYX_REPOSITORY"
   - bash travis.sh

@@ -3,7 +3,7 @@
 
 # Get versions
 DEMYX_UBUNTU_VERSION=$(docker exec -t demyx_code cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed 's/"//g' | sed -e 's/\r//g')
-DEMYX_CODE_VERSION=$(docker exec -t demyx_code code-server --version | head -n1 | sed "s|info  ||g" | sed -e 's/\r//g')
+DEMYX_CODE_VERSION=$(docker exec -t demyx_code code-server --version | head -n1 | sed "s|info  ||g" | sed -r "s/[[:cntrl:]]\[[0-9]{1,3}m//g" | sed -e 's/\r//g')
 
 # Replace the README.md
 [[ -f README.md ]] && rm README.md
@@ -12,8 +12,6 @@ cp .readme README.md
 # Replace latest with actual versions
 sed -i "s/ubuntu-latest-informational/ubuntu-${DEMYX_UBUNTU_VERSION}-informational/g" README.md
 sed -i "s/code-latest-informational/code-${DEMYX_CODE_VERSION}-informational/g" README.md
-sed -i "s|[38;2;0;143;191m[0m||g" README.md
-sed -i "s|[0m||g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
