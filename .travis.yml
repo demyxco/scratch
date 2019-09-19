@@ -17,6 +17,7 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
   - docker pull codercom/code-server:v2
   - ls -al "$PWD"
+  - echo "$PWD"
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":latest tag-latest/.
@@ -24,9 +25,11 @@ script:
   - sleep 5
   - docker exec -t demyx_code code-server --version
   - ls -al "$PWD"
+  - echo "$PWD"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY":latest
   - ls -al "$PWD"
+  - echo "$PWD"
   - bash travis.sh
