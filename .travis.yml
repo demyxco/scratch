@@ -16,14 +16,17 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - docker pull codercom/code-server:v2
+  - ls -al "$PWD"
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":latest tag-latest/.
   - docker-compose -f tag-latest/docker-compose.yml up -d code
   - sleep 5
   - docker exec -t demyx_code code-server --version
+  - ls -al "$PWD"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY":latest
-  - chmod +x travish.sh && ./travis.sh
+  - ls -al "$PWD"
+  - bash travis.sh
