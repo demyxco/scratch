@@ -44,7 +44,7 @@ services:
       #- "traefik.frontend.headers.STSPreload=true"  
   code:
     container_name: demyx_code
-    image: demyx/code
+    image: demyx/scratch
     restart: unless-stopped
     networks:
       - demyx
