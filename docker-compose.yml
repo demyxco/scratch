@@ -51,9 +51,9 @@ services:
     volumes:
       - demyx_cs:/home/coder
     environment:
-      CODER_AUTH: true
-      PASSWORD: demyx
-      TZ: America/Los_Angeles
+      - CODER_AUTH=true
+      - PASSWORD=demyx
+      - TZ=America/Los_Angeles
     labels:
       - "traefik.enable=true"
       - "traefik.port=8080"
