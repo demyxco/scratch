@@ -19,11 +19,13 @@ before_install:
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest/.
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-wp/.
   - docker-compose up -d code_server
   - sleep 5
   - docker exec -t demyx_cs code-server --version
 
 after_success:
-  #- echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-  #- docker push demyx/"$DEMYX_REPOSITORY"
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
+  - docker push demyx/"$DEMYX_REPOSITORY":wp
   - bash travis.sh
