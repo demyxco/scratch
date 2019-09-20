@@ -1,9 +1,9 @@
-# code
-[![Build Status](https://img.shields.io/travis/demyxco/code?style=flat)](https://travis-ci.org/demyxco/code)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/code?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
-[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
-[![code-server](https://img.shields.io/badge/code--server-2.1523--vsc1.38.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code)
+# coder
+[![Build Status](https://img.shields.io/travis/demyxco/coder?style=flat)](https://travis-ci.org/demyxco/coder)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/coder?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
+[![code-server](https://img.shields.io/badge/code--server-2.1523--vsc1.38.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 
 code-server is VS Code running on a remote server, accessible through the browser.
@@ -18,14 +18,14 @@ DEFAULT PASSWORD | demyx | demyx
 TIMEZONE | America/Los_Angeles | America/Los_Angeles
 SHELL | zsh | zsh
 SHELL THEME | Oh My Zsh "yg" | Oh My Zsh "yg"
-PACKAGES | zsh jq htop nano tzdata | zsh jq htop nano tzdata nvm npm browser-sync wp-cli
+PACKAGES | zsh jq htop nano tzdata | zsh jq htop nano tzdata composer nvm npm browser-sync wp-cli
 
 ## Updates
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/code?style=flat&color=blue)](https://github.com/demyxco/code)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/code?style=flat&color=blue)](https://github.com/demyxco/code)
-[![Watches](https://img.shields.io/github/watchers/demyxco/code?style=flat&color=blue)](https://github.com/demyxco/code)
-[![Stars](https://img.shields.io/github/stars/demyxco/code?style=flat&color=blue)](https://github.com/demyxco/code)
-[![Forks](https://img.shields.io/github/forks/demyxco/code?style=flat&color=blue)](https://github.com/demyxco/code)
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
+[![Watches](https://img.shields.io/github/watchers/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
+[![Stars](https://img.shields.io/github/stars/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
+[![Forks](https://img.shields.io/github/forks/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
 
 * Auto built weekly on Sundays (America/Los_Angeles)
 * Rolling release updates
@@ -93,14 +93,14 @@ services:
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"  
-  code:
-    container_name: demyx_code
-    image: demyx/code
+  code_server:
+    container_name: demyx_cs
+    image: demyx/code-server
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - demyx_code:/home/coder
+      - demyx_cs:/home/coder
     environment:
       CODER_AUTH: true
       PASSWORD: demyx
@@ -115,8 +115,8 @@ services:
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"
 volumes:
-  demyx_code:
-    name: demyx_code
+  demyx_cs:
+    name: demyx_cs
   demyx_traefik:
     name: demyx_traefik
 networks:
