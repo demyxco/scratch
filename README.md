@@ -1,9 +1,9 @@
-# coder
-[![Build Status](https://img.shields.io/travis/demyxco/coder?style=flat)](https://travis-ci.org/demyxco/coder)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/coder?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
-[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
-[![code-server](https://img.shields.io/badge/code--server-2.1523--vsc1.38.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/coder)
+# code-server
+[![Build Status](https://img.shields.io/travis/demyxco/code-server?style=flat)](https://travis-ci.org/demyxco/code-server)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/code-server?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-18.04-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
+[![code-server](https://img.shields.io/badge/code--server-2.1523--vsc1.38.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 
 code-server is VS Code running on a remote server, accessible through the browser.
@@ -17,15 +17,15 @@ PORT | 8080 | 8080 3000
 DEFAULT PASSWORD | demyx | demyx
 TIMEZONE | America/Los_Angeles | America/Los_Angeles
 SHELL | zsh | zsh
-SHELL THEME | Oh My Zsh "yg" | Oh My Zsh "yg"
+SHELL THEME | Oh My Zsh "ys" | Oh My Zsh "ys"
 PACKAGES | zsh jq htop nano tzdata | zsh jq htop nano tzdata composer nvm npm browser-sync wp-cli
 
 ## Updates
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
-[![Watches](https://img.shields.io/github/watchers/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
-[![Stars](https://img.shields.io/github/stars/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
-[![Forks](https://img.shields.io/github/forks/demyxco/coder?style=flat&color=blue)](https://github.com/demyxco/coder)
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
+[![Watches](https://img.shields.io/github/watchers/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
+[![Stars](https://img.shields.io/github/stars/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
+[![Forks](https://img.shields.io/github/forks/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
 
 * Auto built weekly on Sundays (America/Los_Angeles)
 * Rolling release updates
