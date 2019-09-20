@@ -19,7 +19,7 @@ before_install:
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest/.
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-wp/.
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp tag-wp/.
   - docker-compose up -d code_server
   - sleep 5
   - docker exec -t demyx_cs code-server --version
