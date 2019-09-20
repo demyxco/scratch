@@ -1,6 +1,6 @@
 FROM codercom/code-server:v2
 
-LABEL sh.demyx.image demyx/code
+LABEL sh.demyx.image demyx/code-server
 LABEL sh.demyx.maintainer Demyx <info@demyx.sh>
 LABEL sh.demyx.url https://demyx.sh
 LABEL sh.demyx.github https://github.com/demyxco/demyx

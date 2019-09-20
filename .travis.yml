@@ -19,9 +19,9 @@ before_install:
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest/.
-  - docker-compose -f tag-latest/docker-compose.yml up -d code
+  - docker-compose up -d code_server
   - sleep 5
-  - docker exec -t demyx_code code-server --version
+  - docker exec -t demyx_cs code-server --version
 
 after_success:
   #- echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin

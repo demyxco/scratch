@@ -42,18 +42,18 @@ services:
       #- "traefik.frontend.headers.STSSeconds=315360000"
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"  
-  code:
-    container_name: demyx_code
-    image: demyx/scratch
+  code_server:
+    container_name: demyx_cs
+    image: demyx/code-server
     restart: unless-stopped
     networks:
       - demyx
     volumes:
-      - demyx_code:/home/coder
+      - demyx_cs:/home/coder
     environment:
-      - CODER_AUTH=true
-      - PASSWORD=demyx
-      - TZ=America/Los_Angeles
+      CODER_AUTH: true
+      PASSWORD: demyx
+      TZ: America/Los_Angeles
     labels:
       - "traefik.enable=true"
       - "traefik.port=8080"
@@ -64,8 +64,8 @@ services:
       #- "traefik.frontend.headers.STSIncludeSubdomains=true"
       #- "traefik.frontend.headers.STSPreload=true"
 volumes:
-  demyx_code:
-    name: demyx_code
+  demyx_cs:
+    name: demyx_cs
   demyx_traefik:
     name: demyx_traefik
 networks:
