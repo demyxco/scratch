@@ -15,17 +15,20 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - docker pull codercom/code-server:v2
+  - docker pull alpine
+  - docker pull demyx/mariadb
+  - docker pull traefik
+  - docker pull wordpress:cli
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest/.
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp tag-wp/.
-  - docker-compose up -d code_server
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker-compose up -d
   - sleep 5
-  - docker exec -t demyx_cs code-server --version
+  - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+  - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core is-installed
+  - docker exec -t demyx_wp sh -c "apk add curl; curl -sI http://localhost | grep "HTTP/1.1 200 OK" || exit 1"
 
 after_success:
   - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
   - docker push demyx/"$DEMYX_REPOSITORY"
-  - docker push demyx/"$DEMYX_REPOSITORY":wp
   - bash travis.sh
