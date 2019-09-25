@@ -82,6 +82,7 @@ MARIADB_SORT_BUFFER_SIZE | 20M
 MARIADB_TABLE_OPEN_CACHE | 64
 MARIADB_USERNAME | # Optional
 MARIADB_WRITE_BUFFER | 2M
+TZ | America/Los_Angeles
 
 ## Usage
 This config requires no .toml for Traefik and is ready to go when running: `docker-compose up -d`. 
