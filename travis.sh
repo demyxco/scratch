@@ -1,15 +1,11 @@
 #!/bin/bash
-# Demyx
-# https://demyx.sh
-# Original script: https://github.com/peter-evans/dockerhub-description/blob/master/entrypoint.sh
+# https://github.com/peter-evans/dockerhub-description/blob/master/entrypoint.sh
 set -euo pipefail
 IFS=$'\n\t'
 
 # Get versions
-DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
-DEMYX_PHP_VERSION=$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
-DEMYX_WP_VERSION=$(docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core version | sed -e 's/\r//g')
+DEMYX_ALPINE_VERSION=$(docker exec -t demyx cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
+DEMYX_DOCKER_VERSION=$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | grep '"name":' | awk -F '[:]' '{print $2}' | sed 's/"//g' | sed 's/,//g' | sed 's/ //g' | sed -e 's/\r//g')
 
 # Replace the README.md
 [[ -f README.md ]] && rm README.md
@@ -17,9 +13,7 @@ cp .readme README.md
 
 # Replace latest with actual versions
 sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
-sed -i "s/nginx-latest-informational/nginx-${DEMYX_NGINX_VERSION}-informational/g" README.md
-sed -i "s/php-latest-informational/php-${DEMYX_PHP_VERSION}-informational/g" README.md
-sed -i "s/wordpress-latest-informational/wordpress-${DEMYX_WP_VERSION}-informational/g" README.md
+sed -i "s/docker_client-latest-informational/docker_client-${DEMYX_DOCKER_VERSION}-informational/g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
