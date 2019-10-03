@@ -12,6 +12,7 @@ if [[ ! -d /demyx/etc ]]; then
     mkdir -p /demyx/app/stack
     mkdir -p /demyx/backup
     mkdir -p /demyx/custom
+	touch /demyx/app/stack/.env
     cp /demyx/etc/example/example-callback.sh /demyx/custom
     chown -R demyx:demyx /demyx
 	echo "Demyx is now installed"
@@ -20,6 +21,7 @@ fi
 # Create /demyx/.env if it doesn't exist
 if [[ ! -f /demyx/.env ]]; then
 	[[ -z "$DEMYX_MODE" ]] && DEMYX_MODE=production
+	[[ -z "$DEMYX_HOST" ]] && DEMYX_HOST="$(hostname)"
 	[[ -z "$DEMYX_SSH" ]] && DEMYX_SSH=2222
 	[[ -z "$DEMYX_STATUS" ]] && DEMYX_STATUS=0
 
