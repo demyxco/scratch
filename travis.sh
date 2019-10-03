@@ -7,19 +7,15 @@ IFS=$'\n\t'
 DEMYX_ALPINE_VERSION=$(docker exec -t demyx cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
 DEMYX_DOCKER_VERSION=$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | grep '"name":' | awk -F '[:]' '{print $2}' | sed 's/"//g' | sed 's/,//g' | sed 's/ //g' | sed -e 's/\r//g')
 
-# Replace the README.md
-[[ -f README.md ]] && rm README.md
-cp .readme README.md
-
 # Replace latest with actual versions
-sed -i "s/alpine-latest-informational/alpine-${DEMYX_ALPINE_VERSION}-informational/g" README.md
-sed -i "s/docker_client-latest-informational/docker_client-${DEMYX_DOCKER_VERSION}-informational/g" README.md
+sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
+sed -i "s|docker_client-.*.-informational|docker_client-${DEMYX_DOCKER_VERSION}-informational|g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/"$DEMYX_REPOSITORY".git
-git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
+git add .; git commit -m "Weekly Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
 
 # Set the default path to README.md
 README_FILEPATH="./README.md"

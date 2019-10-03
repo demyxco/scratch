@@ -12,9 +12,9 @@ demyx_yml() {
         if [[ "$DEMYX_APP_SSL" = "on" ]]; then
             DEMYX_REGEX_PROTOCOL="http://"
             DEMYX_REGEX_PROTOCOL_REPLACEMENT="https://"
-            DEMYX_SERVER_IP=$(demyx util curl -m 5 https://ipecho.net/plain | sed -e 's/\r//g')
+            DEMYX_SERVER_IP=$(demyx util curl -m 10 https://ipecho.net/plain | sed -e 's/\r//g')
             DEMYX_SUBDOMAIN_CHECK=$(demyx util dig +short "$DEMYX_APP_DOMAIN" | sed -e '1d' | sed -e 's/\r//g')
-            DEMYX_CLOUDFLARE_CHECK=$(curl -m 1 -svo /dev/null "$DEMYX_APP_DOMAIN" 2>&1 | grep "Server: cloudflare" || true)
+            DEMYX_CLOUDFLARE_CHECK=$(curl -m 10 -svo /dev/null "$DEMYX_APP_DOMAIN" 2>&1 | grep "Server: cloudflare" || true)
         
             if [[ -n "$DEMYX_SUBDOMAIN_CHECK" ]]; then
                 DEMYX_DOMAIN_IP=$DEMYX_SUBDOMAIN_CHECK
@@ -29,6 +29,7 @@ demyx_yml() {
                         - \"traefik.frontend.headers.STSIncludeSubdomains=\${DEMYX_APP_STS_INCLUDE_SUBDOMAINS}\"
                         - \"traefik.frontend.headers.STSPreload=\${DEMYX_APP_STS_PRELOAD}\""
             else
+                sed -i "s|DEMYX_APP_SSL=.*|DEMYX_APP_SSL=off|g" "$DEMYX_APP_PATH"/.env
                 echo -e "\e[33m[WARNING]\e[39m $DEMYX_TARGET does not point to server's IP! Proceeding without SSL..."
             fi
         fi
@@ -181,7 +182,7 @@ demyx_stack_yml() {
                 volumes:
                     - /var/run/docker.sock:/var/run/docker.sock:ro
                     - demyx_traefik:/demyx
-                    - demyx_traefik_log:/var/log/demyx
+                    - demyx_log:/var/log/demyx
                 environment:
                     - TZ=America/Los_Angeles
                 labels:
@@ -204,13 +205,15 @@ demyx_stack_yml() {
                     - SELF_UPDATE=true
                     - CLEANUP=true
                     - LATEST=true
+                    - IGNORE="\$DEMYX_STACK_OUROBOROS_IGNORE"
+                    - TZ=America/Los_Angeles
                 volumes:
                     - /var/run/docker.sock:/var/run/docker.sock:ro
         volumes:
             demyx_traefik:
                 name: demyx_traefik
-            demyx_traefik_log:
-                name: demyx_traefik_log
+            demyx_log:
+                name: demyx_log
         networks:
             demyx:
                 name: demyx
@@ -236,9 +239,9 @@ demyx_v2_yml() {
                         - \"traefik.http.middlewares.\${DEMYX_APP_COMPOSE_PROJECT}-redirect.redirectscheme.scheme=http\""
 
         if [[ "$DEMYX_APP_SSL" = "on" ]]; then
-            DEMYX_SERVER_IP=$(demyx util curl -m 5 -s https://ipecho.net/plain | sed -e 's/\r//g')
+            DEMYX_SERVER_IP=$(demyx util curl -m 10 -s https://ipecho.net/plain | sed -e 's/\r//g')
             DEMYX_SUBDOMAIN_CHECK=$(demyx util dig +short "$DEMYX_APP_DOMAIN" | sed -e '1d' | sed -e 's/\r//g')
-            DEMYX_CLOUDFLARE_CHECK=$(curl -m 1 -svo /dev/null "$DEMYX_APP_DOMAIN" 2>&1 | grep "Server: cloudflare" || true)
+            DEMYX_CLOUDFLARE_CHECK=$(curl -m 10 -svo /dev/null "$DEMYX_APP_DOMAIN" 2>&1 | grep "Server: cloudflare" || true)
         
             if [[ -n "$DEMYX_SUBDOMAIN_CHECK" ]]; then
                 DEMYX_DOMAIN_IP=$DEMYX_SUBDOMAIN_CHECK
@@ -255,6 +258,7 @@ demyx_v2_yml() {
                       - \"traefik.http.routers.\${DEMYX_APP_COMPOSE_PROJECT}-https.tls.certresolver=demyx\"
                       - \"traefik.http.middlewares.\${DEMYX_APP_COMPOSE_PROJECT}-redirect.redirectscheme.scheme=https\""
             else
+                sed -i "s|DEMYX_APP_SSL=.*|DEMYX_APP_SSL=off|g" "$DEMYX_APP_PATH"/.env
                 echo -e "\e[33m[WARNING]\e[39m $DEMYX_TARGET does not point to server's IP! Proceeding without SSL..."
             fi
         fi
@@ -363,6 +367,19 @@ demyx_stack_v2_yml() {
         source "$DEMYX_STACK"/.env
         DEMYX_STACK_AUTH="$DEMYX_PARSE_BASIC_AUTH"
     fi
+
+    if [[ "$DEMYX_STACK_CLOUDFLARE" = on ]]; then
+        DEMYX_STACK_CHALLENGES="- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE=true
+                    - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE_PROVIDER=cloudflare
+                    - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE_DELAYBEFORECHECK=0
+                    - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE_RESOLVERS=1.1.1.1
+                    - CF_API_EMAIL=\${DEMYX_STACK_CLOUDFLARE_EMAIL}
+                    - CF_API_KEY=\${DEMYX_STACK_CLOUDFLARE_KEY}"
+    else
+        DEMYX_STACK_CHALLENGES="- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
+                    - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http"
+    fi
+
     cat > "$DEMYX_STACK"/docker-compose.yml <<-EOF
         # AUTO GENERATED
         version: "$DEMYX_DOCKER_COMPOSE"
@@ -379,15 +396,14 @@ demyx_stack_v2_yml() {
                 volumes:
                     - /var/run/docker.sock:/var/run/docker.sock:ro
                     - demyx_traefik:/demyx
-                    - demyx_traefik_log:/var/log/demyx
+                    - demyx_log:/var/log/demyx
                 environment:
                     - TRAEFIK_API=true
                     - TRAEFIK_PROVIDERS_DOCKER=true
                     - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
                     - TRAEFIK_ENTRYPOINTS_HTTP_ADDRESS=:80
                     - TRAEFIK_ENTRYPOINTS_HTTPS_ADDRESS=:443
-                    - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
-                    - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http
+                    $DEMYX_STACK_CHALLENGES
                     - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_EMAIL=\${DEMYX_STACK_ACME_EMAIL}
                     - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_STORAGE=\${DEMYX_STACK_ACME_STORAGE}
                     - TRAEFIK_LOG=true
@@ -418,14 +434,15 @@ demyx_stack_v2_yml() {
                     - SELF_UPDATE=true
                     - CLEANUP=true
                     - LATEST=true
+                    - IGNORE="\$DEMYX_STACK_OUROBOROS_IGNORE"
                     - TZ=America/Los_Angeles
                 volumes:
                     - /var/run/docker.sock:/var/run/docker.sock:ro
         volumes:
             demyx_traefik:
                 name: demyx_traefik
-            demyx_traefik_log:
-                name: demyx_traefik_log
+            demyx_log:
+                name: demyx_log
         networks:
             demyx:
                 name: demyx

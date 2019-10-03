@@ -11,18 +11,29 @@ ENV TZ America/Los_Angeles
 
 # Install custom packages
 RUN set -ex; \
-    apk add --no-cache --update bash tzdata curl zsh openssh sudo gnupg jq htop rsync git
+    apk add --no-cache --update \
+    bash \
+    tzdata \
+    curl \
+    zsh \
+    openssh \
+    sudo \
+    gnupg \
+    jq \
+    htop \
+    rsync \
+    git \
+    util-linux
 
 # Download latest Docker client binary
 RUN set -ex; \
     export DEMYX_DOCKER_BINARY=$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | grep '"name":' | awk -F '[:]' '{print $2}' | sed -e 's/"//g' | sed -e 's/,//g' | sed -e 's/ //g' | sed -e 's/\r//g'); \
     # Set fixed version as a fallback if curling fails
     if [ -z "$DEMYX_DOCKER_BINARY" ]; then export DEMYX_DOCKER_BINARY=18.09.9; fi; \
-    mkdir /usr/src; \
-    wget -P /usr/src/ https://download.docker.com/linux/static/stable/x86_64/docker-"$DEMYX_DOCKER_BINARY".tgz; \
-    tar -xzf /usr/src/docker-"$DEMYX_DOCKER_BINARY".tgz -C /usr/src; \
-    mv /usr/src/docker/docker /usr/local/bin; \
-    rm -rf /usr/src/*
+    wget https://download.docker.com/linux/static/stable/x86_64/docker-"$DEMYX_DOCKER_BINARY".tgz -qO /tmp/docker-"$DEMYX_DOCKER_BINARY".tgz; \
+    tar -xzf /tmp/docker-"$DEMYX_DOCKER_BINARY".tgz -C /tmp; \
+    mv /tmp/docker/docker /usr/local/bin; \
+    rm -rf /tmp/*
 
 # Create demyx user and configure ssh
 RUN set -ex; \
@@ -56,9 +67,6 @@ RUN set -ex; \
     echo 'cd /demyx && demyx motd' >> /root/.zshrc; \
     echo 'cd /demyx && sudo demyx motd' >> /home/demyx/.zshrc
 
-# Fix the annoying "prompt_git:40: vcs_info: function definition file not found"
-COPY vcs_info /
-
 # Allow demyx user to execute only one script and allow usage of environment variables
 RUN set -ex; \
     echo "demyx ALL=(ALL) NOPASSWD:/demyx/etc/demyx.sh" >> /etc/sudoers; \
@@ -72,10 +80,6 @@ RUN set -ex; \
     \
     echo 'export GPG_TTY=$(tty)' >> /root/.zshrc; \
     echo 'export GPG_TTY=$(tty)' >> /home/demyx/.zshrc; \
-    \
-    cat /vcs_info >> /root/.zshrc; \
-    cat /vcs_info >> /home/demyx/.zshrc; \
-    rm /vcs_info; \
     \
     chown -R demyx:demyx /demyx
 

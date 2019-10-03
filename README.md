@@ -2,8 +2,8 @@
 [![Build Status](https://img.shields.io/travis/demyxco/demyx?style=flat)](https://travis-ci.org/demyxco/demyx)
 [![Docker Pulls](https://img.shields.io/docker/pulls/demyx/demyx?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
-[![Alpine](https://img.shields.io/badge/alpine-3.10.2-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
-[![Docker Client](https://img.shields.io/badge/docker_client-18.09.9-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Alpine](https://img.shields.io/badge/alpine-123-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Docker Client](https://img.shields.io/badge/docker_client-123-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 
 Demyx is a Docker image that automates WordPress installations. Traefik for reverse proxy with Lets Encrypt SSL/TLS. WordPress sites are powered by NGINX, PHP, and MariaDB.
@@ -30,7 +30,7 @@ Demyx is a Docker image that automates WordPress installations. Traefik for reve
 * Backup/Restore/Clone
 * CDN provided by Staticaly
 * FastCGI cache with nginx-helper plugin by rtCamp (WooCommerce ready)
-* Development mode includes the tools SSH, BrowserSync, phpMyAdmin, and Demyx BrowserSync plugin
+* Development mode includes the tools code-server, BrowserSync, and Demyx BrowserSync plugin
 * Auto scale containers with callback (see the custom folder)
 * Custom healthchecks
 * WP-CLI
@@ -85,7 +85,7 @@ demyx run domain.tld --cdn --cache
 ```
 
 ### chroot.sh
-This script helps you change root to the demyx container, it's installed on the host OS and lives in /usr/local/bin. Executing the install or upgrade script will automatically install the Demyx chroot script. The chroot script will start the demyx container, bind ports 2222 for SSH, and 2022 for Eternal Terminal by default. These ports can be overriden by the script.
+This script helps you change root to the demyx container, it's installed on the host OS and lives in /usr/local/bin. Executing the install script will automatically install the Demyx chroot script. The chroot script will start the demyx container, bind ports 2222 for SSH, and 2022 for Eternal Terminal by default. These ports can be overriden by the script.
 ```
 docker run -dit \
     --name demyx \
