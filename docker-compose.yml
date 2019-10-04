@@ -84,7 +84,7 @@ services:
       - TZ=America/Los_Angeles
   wp:
     container_name: demyx_wp
-    image: demyx/nginx-php-wordpress
+    image: demyx/scratch
     restart: unless-stopped
     networks:
       - demyx
