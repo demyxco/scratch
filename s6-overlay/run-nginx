@@ -2,4 +2,4 @@
 # Demyx
 # https://demyx.sh
 
-crond -fL /var/log/demyx/cron.log
+nginx -g "daemon off;"
