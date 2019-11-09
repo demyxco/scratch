@@ -15,7 +15,7 @@ DEMYX_WPCLI_VERSION=$(docker run --rm demyx/"$DEMYX_REPOSITORY":cli --version | 
 sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
 sed -i "s|php-.*.-informational|php-${DEMYX_PHP_VERSION}-informational|g" README.md
 sed -i "s|wordpress-.*.-informational|wordpress-${DEMYX_WP_VERSION}-informational|g" README.md
-sed -i "s|wp--cli-.*.-informational|wordpress-${DEMYX_WPCLI_VERSION}-informational|g" README.md
+sed -i "s|wp--cli-.*.-informational|wp--cli-${DEMYX_WPCLI_VERSION}-informational|g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"

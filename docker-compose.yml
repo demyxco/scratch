@@ -97,6 +97,8 @@ services:
     restart: unless-stopped
     networks:
       - demyx
+    depends_on:
+      - wp
     volumes:
       - demyx_wp:/var/www/html
       - demyx_wp_log:/var/log/demyx
@@ -124,6 +126,8 @@ services:
     restart: unless-stopped
     networks:
       - demyx
+    depends_on:
+      - db
     volumes:
       - demyx_wp:/var/www/html
       - demyx_wp_log:/var/log/demyx
