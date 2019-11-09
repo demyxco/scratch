@@ -20,6 +20,8 @@ RUN set -ex; \
     wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -qO /usr/local/bin/wp; \
     chmod +x /usr/local/bin/wp
 
+WORKDIR /var/www/html
+
 USER demyx
 
 ENTRYPOINT ["wp"]
