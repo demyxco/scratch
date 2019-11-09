@@ -91,14 +91,12 @@ services:
       - MARIADB_TABLE_OPEN_CACHE=64
       - MARIADB_WRITE_BUFFER=2M
       - TZ=America/Los_Angeles
-  nginx:
+  nx:
     container_name: demyx_nginx
     image: demyx/nginx
     restart: unless-stopped
     networks:
       - demyx
-    depends_on:
-      - wp
     volumes:
       - demyx_wp:/var/www/html
       - demyx_wp_log:/var/log/demyx
