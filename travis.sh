@@ -7,21 +7,21 @@ IFS=$'\n\t'
 
 # Get versions
 DEMYX_ALPINE_VERSION=$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-DEMYX_NGINX_VERSION=$(docker exec -t demyx_wp nginx -V | grep 'nginx version' | cut -c 22- | sed -e 's/\r//g')
 DEMYX_PHP_VERSION=$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
-DEMYX_WP_VERSION=$(docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp wordpress:cli core version | sed -e 's/\r//g')
+DEMYX_WP_VERSION=$(docker run --rm --volumes-from demyx_wp --network container:demyx_wp demyx/"$DEMYX_REPOSITORY":cli core version | sed -e 's/\r//g')
+DEMYX_WPCLI_VERSION=$(docker run --rm demyx/"$DEMYX_REPOSITORY":cli --version | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')
 
 # Replace versions
 sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
-sed -i "s|nginx-.*.-informational|nginx-${DEMYX_NGINX_VERSION}-informational|g" README.md
 sed -i "s|php-.*.-informational|php-${DEMYX_PHP_VERSION}-informational|g" README.md
 sed -i "s|wordpress-.*.-informational|wordpress-${DEMYX_WP_VERSION}-informational|g" README.md
+sed -i "s|wp--cli-.*.-informational|wordpress-${DEMYX_WPCLI_VERSION}-informational|g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/"$DEMYX_REPOSITORY".git
-git add .; git commit -m "Weekly Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
+git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
 
 # Set the default path to README.md
 README_FILEPATH="./README.md"

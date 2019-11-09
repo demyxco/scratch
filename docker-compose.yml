@@ -21,6 +21,15 @@ services:
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
       - TRAEFIK_ENTRYPOINTS_HTTP_ADDRESS=:80
       #- TRAEFIK_ENTRYPOINTS_HTTPS_ADDRESS=:443
+      ## Only one ACME challenge must be activated at a time
+      #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
+      #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http
+      #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE=true
+      #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE_PROVIDER=cloudflare
+      #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE_DELAYBEFORECHECK=0
+      #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_DNSCHALLENGE_RESOLVERS=1.1.1.1
+      #- CF_API_EMAIL=
+      #- CF_API_KEY=
       #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
       #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http
       #- TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_EMAIL=info@domain.tld
@@ -82,9 +91,36 @@ services:
       - MARIADB_TABLE_OPEN_CACHE=64
       - MARIADB_WRITE_BUFFER=2M
       - TZ=America/Los_Angeles
+  nginx:
+    container_name: demyx_nginx
+    image: demyx/nginx
+    restart: unless-stopped
+    networks:
+      - demyx
+    volumes:
+      - demyx_wp:/var/www/html
+      - demyx_wp_log:/var/log/demyx
+    environment:
+      - WORDPRESS=true
+      - WORDPRESS_SERVICE=wp
+      - NGINX_DOMAIN=domain.tld
+      - NGINX_UPLOAD_LIMIT=128M
+      - NGINX_CACHE=false
+      - NGINX_RATE_LIMIT=false
+      - NGINX_BASIC_AUTH=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1
+      - TZ=America/Los_Angeles
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.domaintld-http.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
+      - "traefik.http.routers.domaintld-http.entrypoints=http"
+      #- "traefik.http.routers.domaintld-http.middlewares=domaintld-redirect"
+      #- "traefik.http.routers.domaintld-https.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
+      #- "traefik.http.routers.domaintld-https.entrypoints=https"
+      #- "traefik.http.routers.domaintld-https.tls.certresolver=demyx"
+      #- "traefik.http.middlewares.domaintld-redirect.redirectscheme.scheme=https"
   wp:
     container_name: demyx_wp
-    image: demyx/scratch
+    image: demyx/wordpress
     restart: unless-stopped
     networks:
       - demyx
@@ -100,21 +136,8 @@ services:
       - WORDPRESS_UPLOAD_LIMIT=128M
       - WORDPRESS_PHP_MEMORY=256M
       - WORDPRESS_PHP_MAX_EXECUTION_TIME=300
-      - WORDPRESS_PHP_OPCACHE=on
-      - WORDPRESS_NGINX_CACHE=off
-      - WORDPRESS_NGINX_RATE_LIMIT=off
-      - WORDPRESS_NGINX_XMLRPC=off
-      - WORDPRESS_NGINX_BASIC_AUTH=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1
+      - WORDPRESS_PHP_OPCACHE=true
       - TZ=America/Los_Angeles
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.domaintld-http.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-http.entrypoints=http"
-      #- "traefik.http.routers.domaintld-http.middlewares=domaintld-redirect"
-      #- "traefik.http.routers.domaintld-https.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      #- "traefik.http.routers.domaintld-https.entrypoints=https"
-      #- "traefik.http.routers.domaintld-https.tls.certresolver=demyx"
-      #- "traefik.http.middlewares.domaintld-redirect.redirectscheme.scheme=https"
 volumes:
   demyx_wp:
     name: demyx_wp
