@@ -25,3 +25,4 @@ script:
   - docker exec -t demyx demyx motd
   - docker exec -t demyx demyx run domain.tld --auth --cdn --cache
   - docker exec -t demyx demyx wp domain.tld core is-installed
+  
