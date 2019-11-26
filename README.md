@@ -1,271 +1,168 @@
-# wordpress
-[![Build Status](https://img.shields.io/travis/demyxco/wordpress?style=flat)](https://travis-ci.org/demyxco/wordpress)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/wordpress?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
-[![Alpine](https://img.shields.io/badge/alpine-3.10.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
-[![PHP](https://img.shields.io/badge/php-7.3.11-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
-[![WordPress](https://img.shields.io/badge/wordpress-5.2.4-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
-[![Bedrock](https://img.shields.io/badge/bedrock-0-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
-[![wp-cli](https://img.shields.io/badge/wp--cli-2.3.0-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/wordpress)
+# demyx 
+[![Build Status](https://img.shields.io/travis/demyxco/demyx?style=flat)](https://travis-ci.org/demyxco/demyx)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/demyx?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Alpine](https://img.shields.io/badge/alpine-3.10.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Docker Client](https://img.shields.io/badge/docker_client-19.03.5-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 
-WordPress is open source software you can use to create a beautiful website, blog, or app.
+Demyx is a Docker image that automates and manages WordPress installations. Traefik for reverse proxy with Lets Encrypt SSL/TLS. WordPress sites are powered by NGINX, PHP, and MariaDB.
 
-TITLE | DESCRIPTION
---- | ---
-TAGS | latest bedrock cli
-USER<br />GROUP | demyx (1000)<br />demyx (1000)
-WORKDIR | /var/www/html
-PORT | 9000
-ENTRYPOINT | ["dumb-init", "demyx"]
-TIMEZONE | America/Los_Angeles
-PHP | /demyx/php.ini<br />/demyx/php-fpm.conf<br />/demyx/docker.conf<br />/demyx/www.conf
+<p align="center"><img  src="https://i.imgur.com/kwKTZHE.gif"></p>
 
-## Updates & Support
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/wordpress?style=flat&color=blue)](https://github.com/demyxco/wordpress)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/wordpress?style=flat&color=blue)](https://github.com/demyxco/wordpress)
-[![Watches](https://img.shields.io/github/watchers/demyxco/wordpress?style=flat&color=blue)](https://github.com/demyxco/wordpress)
-[![Stars](https://img.shields.io/github/stars/demyxco/wordpress?style=flat&color=blue)](https://github.com/demyxco/wordpress)
-[![Forks](https://img.shields.io/github/forks/demyxco/wordpress?style=flat&color=blue)](https://github.com/demyxco/wordpress)
+### Updates & Support
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Watches](https://img.shields.io/github/watchers/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Stars](https://img.shields.io/github/stars/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Forks](https://img.shields.io/github/forks/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
 
-- Auto built weekly on Sundays (America/Los_Angeles)
-- Rolling release updates
-- For support: [#demyx](https://webchat.freenode.net/?channel=#demyx)
+* Auto built weekly on Sundays (America/Los_Angeles)
+* Rolling release updates
+* For support: [#demyx](https://webchat.freenode.net/?channel=#demyx)
 
-## Environment Variables
+### WordPress Features
+* SSL turned on by default
+* Basic auth site-wide or wp-login.php
+* Secure NGINX/PHP configurations
+* Backup/Restore/Clone
+* CDN provided by Staticaly
+* FastCGI cache with nginx-helper plugin by rtCamp (WooCommerce ready)
+* Auto activate rate requests and limit connections when CPU is high
+* Custom healthchecks
+* Development mode includes the tools code-server, BrowserSync, and demyx_helper plugin
+* [Bedrock](https://roots.io/bedrock/)
+
+### Requirements
+* Docker
+* Bash
+* Dedicated/KVM server with Linux
+* Port 80 and 443 must be open
+* CentOS/Fedora/RHEL requires [selinux-dockersock](https://github.com/dpw/selinux-dockersock) or similar fix
+* Primary domain must be pointed to server's IP and must have a wildcard CNAME subdomain
+
+### Install
 ```
-# wordpress
-
-- WORDPRESS_DB_HOST=demyx_db
-- WORDPRESS_DB_NAME=demyx
-- WORDPRESS_DB_USER=demyx
-- WORDPRESS_DB_PASSWORD=demyx
-- WORDPRESS_DOMAIN=domain.tld
-- WORDPRESS_UPLOAD_LIMIT=128M
-- WORDPRESS_PHP_MEMORY=256M
-- WORDPRESS_PHP_MAX_EXECUTION_TIME=300
-- WORDPRESS_PHP_OPCACHE=true
-- WORDPRESS_PHP_PM=ondemand
-- WORDPRESS_PHP_PM_MAX_CHILDREN=100
-- WORDPRESS_PHP_PM_START_SERVERS=10
-- WORDPRESS_PHP_PM_MIN_SPARE_SERVERS=5
-- WORDPRESS_PHP_PM_MAX_SPARE_SERVERS=25
-- WORDPRESS_PHP_PM_PROCESS_IDLE_TIMEOUT=5s
-- WORDPRESS_PHP_PM_MAX_REQUESTS=500
-- TZ=America/Los_Angeles
-```
-```
-# nginx
-
-- WORDPRESS=true
-- WORDPRESS_CONTAINER=demyx_wp
-- NGINX_DOMAIN=domain.tld
-- NGINX_UPLOAD_LIMIT=128M
-- NGINX_CACHE=false
-- NGINX_RATE_LIMIT=false
-- NGINX_XMLRPC=false
-- NGINX_BASIC_AUTH=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1
-- TZ=America/Los_Angeles
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/demyxco/demyx/master/install.sh)"
 ```
 
-- Install the [Nginx Helper](https://wordpress.org/plugins/nginx-helper/) plugin if NGINX_CACHE is true
-- To generate htpasswd: `docker run -it --rm demyx/utilities "htpasswd -nb demyx demyx"`
-- NGINX_BASIC_AUTH must have double dollar signs ($$)
-- Set WORDPRESS env to true to use a WordPress nginx.conf
-- WORDPRESS_CONTAINER env must match the container name in your docker-compose.yml
-
-## Usage
-- Configured for remote VPS
-- Ports 80 and 443 must be open when using Traefik
-- TLS/SSL enabled by default
-
+### Getting Started
 ```
-# Demyx
-# https://demyx.sh
-#
-# Be sure to change all the domain.tld domains and credentials
-#
-version: "3.7"
-services:
-  traefik:
-    image: traefik
-    container_name: demyx_traefik
-    restart: unless-stopped
-    networks:
-      - demyx
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - demyx_traefik:/demyx
-    environment:
-      - TRAEFIK_API=true
-      - TRAEFIK_PROVIDERS_DOCKER=true
-      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
-      - TRAEFIK_ENTRYPOINTS_HTTP_ADDRESS=:80
-      - TRAEFIK_ENTRYPOINTS_HTTPS_ADDRESS=:443
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_EMAIL=info@domain.tld
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_STORAGE=/demyx/acme.json
-      - TRAEFIK_LOG=true
-      - TRAEFIK_LOG_LEVEL=INFO
-      - TRAEFIK_LOG_FILEPATH=/demyx/error.log
-      - TRAEFIK_ACCESSLOG=true
-      - TRAEFIK_ACCESSLOG_FILEPATH=/demyx/access.log
-      - TZ=America/Los_Angeles
-    labels:
-      # traefik https://traefik.domain.tld
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik-http.rule=Host(`traefik.domain.tld`)"
-      - "traefik.http.routers.traefik-http.service=api@internal"
-      - "traefik.http.routers.traefik-http.entrypoints=http"
-      - "traefik.http.routers.traefik-http.middlewares=traefik-redirect"
-      - "traefik.http.routers.traefik-https.rule=Host(`traefik.domain.tld`)"
-      - "traefik.http.routers.traefik-https.entrypoints=https"
-      - "traefik.http.routers.traefik-https.service=api@internal"
-      - "traefik.http.routers.traefik-https.tls.certresolver=demyx"
-      - "traefik.http.routers.traefik-https.middlewares=traefik-auth"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1" # Password: demyx
-      - "traefik.http.middlewares.traefik-redirect.redirectscheme.scheme=https"
-  demyx_db:
-    container_name: demyx_db
-    image: demyx/mariadb
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - demyx_db:/var/lib/mysql
-    environment:
-      - MARIADB_DATABASE=demyx
-      - MARIADB_USERNAME=demyx
-      - MARIADB_PASSWORD=demyx
-      - MARIADB_ROOT_PASSWORD=demyx # mandatory
-      - MARIADB_BINLOG_FORMAT=mixed
-      - MARIADB_CHARACTER_SET_SERVER=utf8
-      - MARIADB_COLLATION_SERVER=utf8_general_ci
-      - MARIADB_DEFAULT_CHARACTER_SET=utf8
-      - MARIADB_INNODB_BUFFER_POOL_SIZE=16M
-      - MARIADB_INNODB_DATA_FILE_PATH=ibdata1:10M:autoextend
-      - MARIADB_INNODB_FLUSH_LOG_AT_TRX_COMMIT=1
-      - MARIADB_INNODB_LOCK_WAIT_TIMEOUT=50
-      - MARIADB_INNODB_LOG_BUFFER_SIZE=8M
-      - MARIADB_INNODB_LOG_FILE_SIZE=5M
-      - MARIADB_INNODB_USE_NATIVE_AIO=1
-      - MARIADB_KEY_BUFFER_SIZE=20M
-      - MARIADB_LOG_BIN=mysql-bin
-      - MARIADB_MAX_ALLOWED_PACKET=16M
-      - MARIADB_MAX_CONNECTIONS=151
-      - MARIADB_MYISAM_SORT_BUFFER_SIZE=8M
-      - MARIADB_NET_BUFFER_SIZE=8K
-      - MARIADB_READ_BUFFER=2M
-      - MARIADB_READ_BUFFER_SIZE=256K
-      - MARIADB_READ_RND_BUFFER_SIZE=512K
-      - MARIADB_SERVER_ID=1
-      - MARIADB_SORT_BUFFER_SIZE=20M
-      - MARIADB_TABLE_OPEN_CACHE=64
-      - MARIADB_WRITE_BUFFER=2M
-      - TZ=America/Los_Angeles
-  demyx_nginx:
-    container_name: demyx_nginx
-    image: demyx/nginx
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - demyx_wp:/var/www/html
-      - demyx_wp_log:/var/log/demyx
-    environment:
-      - WORDPRESS=true
-      - WORDPRESS_CONTAINER=demyx_wp
-      - NGINX_DOMAIN=domain.tld
-      - NGINX_UPLOAD_LIMIT=128M
-      - NGINX_CACHE=false
-      - NGINX_RATE_LIMIT=false
-      - NGINX_XMLRPC=false
-      - NGINX_BASIC_AUTH=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1
-      - TZ=America/Los_Angeles
-    labels:
-      # wordpress https://domain.tld
-      - "traefik.enable=true"
-      - "traefik.http.routers.domaintld-http.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-http.entrypoints=http"
-      - "traefik.http.routers.domaintld-http.middlewares=domaintld-redirect"
-      - "traefik.http.routers.domaintld-https.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-https.entrypoints=https"
-      - "traefik.http.routers.domaintld-https.tls.certresolver=demyx"
-      - "traefik.http.middlewares.domaintld-redirect.redirectscheme.scheme=https"
-  demyx_wp:
-    container_name: demyx_wp
-    image: demyx/wordpress
-    restart: unless-stopped
-    networks:
-      - demyx
-    depends_on:
-      - demyx_db
-    volumes:
-      - demyx_wp:/var/www/html
-      - demyx_wp_log:/var/log/demyx
-    environment:
-      - WORDPRESS_DB_HOST=demyx_db
-      - WORDPRESS_DB_NAME=demyx
-      - WORDPRESS_DB_USER=demyx
-      - WORDPRESS_DB_PASSWORD=demyx
-      - WORDPRESS_DOMAIN=domain.tld
-      - WORDPRESS_UPLOAD_LIMIT=128M
-      - WORDPRESS_PHP_MEMORY=256M
-      - WORDPRESS_PHP_MAX_EXECUTION_TIME=300
-      - WORDPRESS_PHP_OPCACHE=true
-      - WORDPRESS_PHP_PM=ondemand
-      - WORDPRESS_PHP_PM_MAX_CHILDREN=100
-      - WORDPRESS_PHP_PM_START_SERVERS=10
-      - WORDPRESS_PHP_PM_MIN_SPARE_SERVERS=5
-      - WORDPRESS_PHP_PM_MAX_SPARE_SERVERS=25
-      - WORDPRESS_PHP_PM_PROCESS_IDLE_TIMEOUT=5s
-      - WORDPRESS_PHP_PM_MAX_REQUESTS=500
-      - TZ=America/Los_Angeles
-volumes:
-  demyx_wp:
-    name: demyx_wp
-  demyx_wp_log:
-    name: demyx_wp_log
-  demyx_db:
-    name: demyx_db
-  demyx_traefik:
-    name: demyx_traefik
-networks:
-  demyx:
-    name: demyx
+# Create a WordPress site on the host OS
+demyx exec run domain.tld --cdn --cache
+
+# Create a WordPress site in the demyx container
+demyx run domain.tld --cdn --cache
+
+# Create a WordPress site powered by Bedrock in the demyx container
+demyx run domain.tld --bedrock
 ```
 
-## Extensions
-*A few php extensions added based on the recommendations from [johnbillion/ext](https://github.com/johnbillion/ext). For automatic setup, see my repo: [github.com/demyxco](https://github.com/demyxco/demyx).
+### Demyx Image
+Since the image needs docker.sock to be mounted and the Docker binary is included, I've installed sudo to only allow the demyx user to execute only one script as root. The image is put in production mode by default, meaning that /demyx directory and all it's folders and files will be set to read-only mode. This prevents the non-privelege user to modify the script and do malicious things.
 
-Extension | Installed
-------------- | -------------
-ssh2 | 1
-curl | 1
-date | 1
-dom | 1
-exif | 1
-filter | 1
-ftp | 1
-gd | 1
-hash | 1
-iconv | 1
-imagick | 1
-json | 1
-libxml | 1
-mbstring | 1
-mysqli | 1
-openssl | 1
-pcre | 1
-posix | 1
-SimpleXML | 1
-sockets | 1
-SPL | 1    
-tokenizer | 1
-xml | 1    
-xmlreader | 1
-zlib | 1
+* user/group: demyx:demyx (1000:1000)
+* docker (binary)
+* bash
+* curl
+* git
+* gnupg
+* jq
+* nano
+* oh-my-zsh
+* s6-overlay
+* sudo
+* tzdata
+* util-linux
+* rsync
+* zsh
+
+### chroot.sh
+This script helps you change root to the demyx container, it's installed on the host OS and lives in /usr/local/bin. Executing the install script will automatically install the Demyx chroot script. The chroot script will start the demyx container and binds port 2222 for SSH. SSH port can be overriden by the script.
+```
+docker run -dit \
+    --name=demyx \
+    --restart=unless-stopped \
+    --hostname="$DEMYX_CHROOT_HOST" \
+    --network=demyx \
+    -e DEMYX_HOST="$DEMYX_CHROOT_HOST" \
+    -e DEMYX_SSH="$DEMYX_CHROOT_SSH" \
+    -e DEMYX_MODE="$DEMYX_CHROOT_MODE" \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    -v demyx:/demyx \
+    -v demyx_user:/home/demyx \
+    -v demyx_log:/var/log/demyx \
+    -e TZ=America/Los_Angeles \
+    -p "$DEMYX_CHROOT_SSH":2222 \
+    demyx/demyx
+```
+(host) demyx help
+```
+demyx <args>          Chroot into the demyx container
+      exec            Send demyx commands from host
+      help            Demyx help
+      rm              Stops and removes demyx container
+      restart         Stops, removes, and starts demyx container
+      tty             Execute root commands to demyx container from host
+      update          Update chroot.sh from GitHub
+      --cpu           Set container CPU usage, --cpu=null to remove cap
+      --dev           Puts demyx container into development mode
+      --mem           Set container MEM usage, --mem=null to remove cap
+      --nc            Starts demyx containr but prevent chrooting into container
+      --prod          Puts demyx container into production mode
+      -r, --root      Execute as root user
+      --ssh           Override ssh port
+```
+
+### Commands
+```
+demyx <arg>           Main demyx command
+      backup          Back up an app
+      compose         Accepts all docker-compose arguments
+      config          Modifies an app's configuration
+      cp              Wrapper for docker cp
+      cron            Execute demyx cron
+      exec            Accepts all docker exec arguments
+      healthcheck     Checks if WordPress apps are up
+      info            Shows an app's .env and filter output
+      list            List all apps
+      log             Show or follow demyx.log
+      maldet          Linux Malware Detect
+      monitor         For auto scaling purposes
+      motd            Message of the day
+      pull            Pull one or all demyx images from Docker hub
+      restore         Restore an app
+      rm              Removes an app and its volumes
+      run             Creates a new app
+      stack           Control the stack via docker-compose arguments
+      update          Update demyx code base
+      util            Generates credentials or access util container
+      wp              Execute wp-cli commands
+```
+
+### Privacy
+I have a telemetry setting that is enabled by default. It sends a curl request to demyx.sh server daily at midnight PST. No data is collected except your server's IP address, which is logged to the web server like any other visitor on a browser. I have this enabled so I can track how many active installs there are of Demyx. The curl request uses a token (generated by OpenSSL with a passphrase) to prevent abuse and duplicate entries. What I intend to do with this data is just show a graph of active Demyx installs, just like WordPress plugin stats. 
+
+If you are uncomfortable with this, then you can turn off telemetry by running the command below OR keep it turned on to show your support!
+
+* [Curl](https://github.com/demyxco/demyx/blob/master/cron/every-day.sh#L10)
+* [Statistics](https://demyx.sh/statistics/)
+
+```
+# Execute in the host OS
+demyx exec stack --telemetry=false
+
+# Execute in the demyx container
+demyx stack --telemetry=false
+```
+
+### Resources
+*  [Demyx](https://github.com/demyxco/demyx) - Demyx GitHub
+*  [Traefik](https://hub.docker.com/_/traefik) - Reverse Proxy with Lets Encrypt SSL
+*  [ouroboros](https://hub.docker.com/r/pyouroboros/ouroboros) - Auto pull new images from Docker Hub
+*  [WordPress](https://hub.docker.com/_/wordpress) - Using their `wordpress:cli` image
+*  [phpMyAdmin](https://hub.docker.com/r/phpmyadmin/phpmyadmin) - Web GUI used with Demyx stack
+*  [ctop](https://ctop.sh) - htop but for containers!
+*  [VirtuBox](https://github.com/VirtuBox/ubuntu-nginx-web-server) - Borrowed configs for NGINX and PHP
+*  [EasyEngine](https://easyengine.io/) - Using their nginx helper plugin
+*  [Staticaly](https://www.staticaly.com/) - Free CDN setup

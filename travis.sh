@@ -1,23 +1,15 @@
 #!/bin/bash
-# Demyx
-# https://demyx.sh
 # https://github.com/peter-evans/dockerhub-description/blob/master/entrypoint.sh
 set -euo pipefail
 IFS=$'\n\t'
 
 # Get versions
-DEMYX_ALPINE_VERSION="$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')"
-DEMYX_PHP_VERSION="$(docker exec -t demyx_wp php -v | grep cli | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')"
-DEMYX_WP_VERSION="$(docker run --rm --volumes-from demyx_wp --network container:demyx_wp demyx/"$DEMYX_REPOSITORY":cli core version | sed -e 's/\r//g')"
-DEMYX_BEDROCK_VERSION="$(docker exec -t demyx_wp cat CHANGELOG.md | head -n1 | awk -F '[:]' '{print $1}' | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')"
-DEMYX_WPCLI_VERSION="$(docker run --rm demyx/"$DEMYX_REPOSITORY":cli --version | awk -F '[ ]' '{print $2}' | sed -e 's/\r//g')"
+DEMYX_ALPINE_VERSION=$(docker exec -t demyx cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
+DEMYX_DOCKER_VERSION=$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | grep '"name":' | awk -F '[:]' '{print $2}' | sed 's/"//g' | sed 's/,//g' | sed 's/ //g' | sed -e 's/\r//g')
 
 # Replace versions
 sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
-sed -i "s|php-.*.-informational|php-${DEMYX_PHP_VERSION}-informational|g" README.md
-sed -i "s|wordpress-.*.-informational|wordpress-${DEMYX_WP_VERSION}-informational|g" README.md
-sed -i "s|bedrock-.*.-informational|bedrock-${DEMYX_BEDROCK_VERSION}-informational|g" README.md
-sed -i "s|wp--cli-.*.-informational|wp--cli-${DEMYX_WPCLI_VERSION}-informational|g" README.md
+sed -i "s|docker_client-.*.-informational|docker_client-${DEMYX_DOCKER_VERSION}-informational|g" README.md
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"

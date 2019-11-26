@@ -1,38 +1,27 @@
-# Demyx
-# https://demyx.sh
-
 notifications:
   email:
     on_success: never
-    on_failure: always
+    on_failure: never
 
 services:
   - docker
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
 
 before_install:
-  - sudo apt-get install jq
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
   - docker pull alpine
+  - docker pull demyx/docker-compose
   - docker pull demyx/mariadb
-  - docker pull traefik
+  - docker pull demyx/nginx
+  - docker pull demyx/utilities
+  - docker pull demyx/wordpress
+  - docker pull demyx/wordpress:cli
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest/.
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":bedrock tag-bedrock/.
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":cli tag-cli/.
-  - docker-compose up -d
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" docker/.
+  - docker run -dit --name=demyx --rm --hostname=travis-ci -e DEMYX_MODE=production -e DEMYX_HOST=travis-ci -e DEMYX_SSH=2222 -e TZ=America/Los_Angeles -v demyx:/demyx -v demyx_user:/home/demyx -v demyx_log:/var/log/demyx -p 2222:2222 demyx/"$DEMYX_REPOSITORY"
   - sleep 5
-  - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp demyx/"$DEMYX_REPOSITORY":cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
-  - docker run -t --rm --volumes-from demyx_wp --network container:demyx_wp demyx/"$DEMYX_REPOSITORY":cli core is-installed
-
-after_success:
-  #- echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-  #- docker push demyx/"$DEMYX_REPOSITORY"
-  #- docker push demyx/"$DEMYX_REPOSITORY":cli
-  - bash travis.sh
+  - docker exec -t demyx demyx motd
+  - docker exec -t demyx demyx run domain.tld --auth --cdn --cache
+  - docker exec -t demyx demyx wp domain.tld core is-installed

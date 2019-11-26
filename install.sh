@@ -59,14 +59,6 @@ if [[ -z "$DEMYX_INSTALL_DOMAIN" ]]; then
     exit 1
 fi
 
-if [[ -z "$DEMYX_INSTALL_SKIP_CHECKS" ]]; then
-    DEMYX_WILDCARD_CHECK=$(docker run -t --rm demyx/utilities "dig +short 'traefik.$DEMYX_INSTALL_DOMAIN'")
-    if [[ -z "$DEMYX_WILDCARD_CHECK" ]]; then
-        echo -e "\e[31m[CRITICAL]\e[39m Wildcard CNAME not detected, please add * as a CNAME to your domain's DNS and rerun installation"
-        exit
-    fi
-fi
-
 echo -e "\e[34m[INFO\e[39m] Lets Encrypt SSL notifications"
 read -rep "Email: " DEMYX_INSTALL_EMAIL
 if [[ -z "$DEMYX_INSTALL_EMAIL" ]]; then
@@ -99,4 +91,3 @@ demyx exec install --domain="$DEMYX_INSTALL_DOMAIN" --email="$DEMYX_INSTALL_EMAI
 
 echo -e "\e[34m[INFO\e[39m] To SSH into the demyx container, paste your keys in /home/demyx/.ssh/authorized_keys inside the demyx container. Then run on the host OS: demyx restart"
 demyx restart
-
