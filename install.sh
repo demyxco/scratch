@@ -18,42 +18,21 @@ if [ ! -f "$DEMYX_DOCKER_CHECK" ]; then
     exit 1
 fi
 
-while :; do
-    case "${1:-}" in
-        --skip-checks)
-            DEMYX_INSTALL_SKIP_CHECKS=1
-            ;;
-        --)
-            shift
-            break
-            ;;
-        -?*)
-            printf '\e[31m[CRITICAL]\e[39m Unknown option: %s\n' "$1" >&2
-            exit 1
-            ;;
-        *)
-            break
-    esac
-    shift
-done
-
-if [ -z "$DEMYX_INSTALL_SKIP_CHECKS" ]; then
-    docker pull demyx/browsersync
-    docker pull demyx/code-server:wp
-    docker pull demyx/demyx
-    docker pull demyx/docker-compose
-    docker pull demyx/docker-socket-proxy
-    docker pull demyx/logrotate
-    docker pull demyx/mariadb:edge
-    docker pull demyx/nginx
-    docker pull demyx/ouroboros
-    docker pull demyx/ssh
-    docker pull demyx/traefik
-    docker pull demyx/utilities
-    docker pull demyx/wordpress
-    docker pull demyx/wordpress:cli
-    docker pull phpmyadmin/phpmyadmin
-fi
+docker pull demyx/browsersync
+docker pull demyx/code-server:wp
+docker pull demyx/demyx
+docker pull demyx/docker-compose
+docker pull demyx/docker-socket-proxy
+docker pull demyx/logrotate
+docker pull demyx/mariadb:edge
+docker pull demyx/nginx
+docker pull demyx/ouroboros
+docker pull demyx/ssh
+docker pull demyx/traefik
+docker pull demyx/utilities
+docker pull demyx/wordpress
+docker pull demyx/wordpress:cli
+docker pull phpmyadmin/phpmyadmin
 
 printf "\e[34m[INFO]\e[39m Enter top level domain for Traefik dashboard\n"
 read -rp "Domain: " DEMYX_INSTALL_DOMAIN
