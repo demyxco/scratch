@@ -122,13 +122,11 @@ demyx_execute() {
     echo -e "$DEMYX_COMMON_LOG" >> /var/log/demyx/demyx.log
 }
 demyx_table() {
-    source "$DEMYX_FUNCTION"/table.sh
+    demyx_source table
     printTable '^' "$@"
 }
 demyx_permission() {
-    [[ -f "$DEMYX"/.env ]] && source "$DEMYX"/.env
     chown -R demyx:demyx "$DEMYX"
-    # Will remove this backwards compability in December 2019
     chown -R demyx:demyx "$DEMYX_LOG"
 }
 demyx_app_config() {
@@ -142,7 +140,7 @@ demyx_app_is_up() {
     if [[ -z "$DEMYX_APP_IS_UP_CHECK_DB" || -z "$DEMYX_APP_IS_UP_CHECK_NX" || -z "$DEMYX_APP_IS_UP_CHECK_WP" ]]; then
         demyx_die "$DEMYX_APP_DOMAIN isn't running"
     fi
-} 
+}
 demyx_open_port() {
     DEMYX_UTILITIES_PORT=22222
     [[ -n "$1" ]] && DEMYX_UTILITIES_PORT="$1"
@@ -153,7 +151,7 @@ demyx_open_port() {
     demyx/utilities demyx-port | sed 's/\r//g'
 }
 demyx_mariadb_ready() {
-    until docker exec -t "$DEMYX_APP_DB_CONTAINER" mysqladmin -u root -p"$MARIADB_ROOT_PASSWORD" status 2>/dev/null
+    until docker exec -t "$DEMYX_APP_DB_CONTAINER" mysqladmin -u "$WORDPRESS_DB_USER" -p"$WORDPRESS_DB_PASSWORD" status 2>/dev/null
     do
         sleep 1
     done
@@ -171,10 +169,10 @@ demyx_wordpress_ready() {
     done
 }
 demyx_generate_password() {
-    DEMYX_PASSWORD_1="$(tr -dc [:xdigit:] < /dev/urandom | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
-    DEMYX_PASSWORD_2="$(tr -dc [:xdigit:] < /dev/urandom | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
-    DEMYX_PASSWORD_3="$(tr -dc [:xdigit:] < /dev/urandom | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
-    DEMYX_PASSWORD_4="$(tr -dc [:xdigit:] < /dev/urandom | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
+    DEMYX_PASSWORD_1="$(uuidgen | awk -F '[-]' '{print $5}' | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
+    DEMYX_PASSWORD_2="$(uuidgen | awk -F '[-]' '{print $5}' | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
+    DEMYX_PASSWORD_3="$(uuidgen | awk -F '[-]' '{print $5}' | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
+    DEMYX_PASSWORD_4="$(uuidgen | awk -F '[-]' '{print $5}' | head -c $(( ( RANDOM % 10 )  + 4 )) | sed -e 's/\r//g')"
     
     echo "${DEMYX_PASSWORD_1}-${DEMYX_PASSWORD_2}-${DEMYX_PASSWORD_3}-${DEMYX_PASSWORD_4}"
 }
@@ -205,10 +203,48 @@ demyx_validate_ip() {
 }
 demyx_check_docker_sock() {
     DEMYX_GLOBAL_CHECK_DOCKER_SOCK="$(ls /run | grep docker.sock)"
-    [[ -n "$DEMYX_GLOBAL_CHECK_DOCKER_SOCK" ]] && echo true
+    [[ -n "$DEMYX_GLOBAL_CHECK_DOCKER_SOCK" ]] && echo volume
+    [[ -n "$DOCKER_HOST" ]] && echo proxy
+}
+demyx_get_mode() {
+    if [[ -f /tmp/demyx-dev ]]; then
+        echo development
+    else
+        echo production
+    fi
+}
+demyx_socket() {
+    docker run -d \
+    --privileged \
+    --name=demyx_socket \
+    --network=demyx_socket \
+    --cpus="$DEMYX_CPU" \
+    --memory="$DEMYX_MEM" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -e CONTAINERS=1 \
+    -e EXEC=1 \
+    -e IMAGES=1 \
+    -e INFO=1 \
+    -e NETWORKS=1 \
+    -e POST=1 \
+    -e VOLUMES=1 \
+    demyx/docker-socket-proxy 2>/dev/null
+}
+demyx_source() {
+    if [[ "$1" = stack && -f "$DEMYX_STACK"/.env ]]; then
+        source "$DEMYX_STACK"/.env
+    elif [[ "$1" = env && -f "$DEMYX_FUNCTION"/env.sh ]]; then
+        source "$DEMYX_FUNCTION"/env.sh
+    elif [[ "$1" = name && -f "$DEMYX_FUNCTION"/name.sh ]]; then
+        source "$DEMYX_FUNCTION"/name.sh
+    elif [[ "$1" = table && -f "$DEMYX_FUNCTION"/table.sh ]]; then
+        source "$DEMYX_FUNCTION"/table.sh
+    elif [[ "$1" = yml && -f "$DEMYX_FUNCTION"/yml.sh ]]; then
+        source "$DEMYX_FUNCTION"/yml.sh
+    fi
 }
 
-if [[ "$(demyx_check_docker_sock)" = true ]]; then
+if [[ -n "$(demyx_check_docker_sock)" ]]; then
     # Global environment variables
     DEMYX_DOCKER_PS="$(docker ps)"
 fi

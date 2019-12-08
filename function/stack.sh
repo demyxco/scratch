@@ -70,6 +70,12 @@ demyx_stack() {
             --healthcheck=false)
                 DEMYX_STACK_HEALTHCHECK=false
                 ;;
+            --healthcheck-timeout=?*)
+                DEMYX_STACK_HEALTHCHECK_TIMEOUT="${2#*=}"
+                ;;
+            --healthcheck-timeout=)
+                demyx_die '"--healthcheck-timeout" cannot be empty'
+                ;;
             --ignore=?*)
                 DEMYX_STACK_IGNORE="${2#*=}"
                 ;;
@@ -88,6 +94,9 @@ demyx_stack() {
                 ;;
             --monitor=false)
                 DEMYX_STACK_MONITOR=false
+                ;;
+            --revert)
+                DEMYX_STACK_REVERT=1
                 ;;
             --telemetry|--telemetry=true)
                 DEMYX_STACK_TELEMETRY=true
@@ -145,14 +154,20 @@ demyx_stack() {
             demyx stack refresh
         fi
     elif [[ "$DEMYX_STACK_SELECT" = refresh ]]; then
-        demyx_echo 'Backing up stack directory as /demyx/backup/stack.tgz'
-        demyx_execute tar -czf /demyx/backup/stack.tgz -C /demyx/app stack
+        if [[ -d "$DEMYX_STACK" ]]; then
+            demyx_echo 'Backing up stack directory as /demyx/backup/stack.tgz'
+            demyx_execute tar -czf /demyx/backup/stack.tgz -C /demyx/app stack
+        fi
 
-        source "$DEMYX_FUNCTION"/env.sh
-        source "$DEMYX_FUNCTION"/yml.sh
+        demyx_source env
+        demyx_source yml
 
         demyx_echo 'Refreshing stack env and yml'
         demyx_execute demyx_stack_env; demyx_stack_yml
+
+        # Will remove this in January 1st, 2020
+        demyx_echo 'Setting proper permission for acme.json'
+        demyx_execute docker run --user=root -it --rm -v demyx_traefik:/demyx demyx/utilities sh -c "chmod 600 /demyx/acme.json; chown -R demyx:demyx /demyx"
 
         demyx compose stack up -d --remove-orphans
     elif [[ "$DEMYX_STACK_SELECT" = upgrade ]]; then
@@ -167,7 +182,7 @@ demyx_stack() {
             demyx_execute docker run -dit --rm --name demyx_upgrade demyx/utilities sh
 
             demyx_echo 'Downloading and extracting Traefik Migration Tool'
-            demyx_execute wget https://github.com/containous/traefik-migration-tool/releases/download/v0.8.0/traefik-migration-tool_v0.8.0_linux_amd64.tar.gz -qO /tmp/traefik-migration-tool_v0.8.0_linux_amd64.tar.gz; \
+            demyx_execute curl -sL https://github.com/containous/traefik-migration-tool/releases/download/v0.8.0/traefik-migration-tool_v0.8.0_linux_amd64.tar.gz -o /tmp/traefik-migration-tool_v0.8.0_linux_amd64.tar.gz; \
                 tar -xzf /tmp/traefik-migration-tool_v0.8.0_linux_amd64.tar.gz -C /tmp
 
             demyx_echo 'Upgrading acme.json'
@@ -215,8 +230,8 @@ demyx_stack() {
             [[ -z "$DEMYX_STACK_CLOUDFLARE_API_EMAIL" ]] && demyx_die '--cf-api-email is missing'
             [[ -z "$DEMYX_STACK_CLOUDFLARE_API_KEY" ]] && demyx_die '--cf-api-key is missing'
 
-            source "$DEMYX_FUNCTION"/env.sh
-            source "$DEMYX_FUNCTION"/yml.sh
+            demyx_source env
+            demyx_source yml
 
             demyx_echo 'Enabling Cloudflare as the certificate resolver'
             demyx_execute demyx_stack_env; \
@@ -238,6 +253,10 @@ demyx_stack() {
         elif [[ "$DEMYX_STACK_HEALTHCHECK" = false ]]; then
             demyx_echo 'Turning off stack healthcheck'
             demyx_execute sed -i 's/DEMYX_STACK_HEALTHCHECK=.*/DEMYX_STACK_HEALTHCHECK=false/g' "$DEMYX_STACK"/.env
+        fi
+        if [[ -n "$DEMYX_STACK_HEALTHCHECK_TIMEOUT" ]]; then
+            demyx_echo 'Updating healthcheck timeout'
+            demyx_execute sed -i "s|DEMYX_STACK_HEALTHCHECK_TIMEOUT=.*|DEMYX_STACK_HEALTHCHECK_TIMEOUT=$DEMYX_STACK_HEALTHCHECK_TIMEOUT|g" "$DEMYX_STACK"/.env
         fi
         if [[ "$DEMYX_STACK_MONITOR" = true ]]; then
             demyx_echo 'Turning on stack monitor'

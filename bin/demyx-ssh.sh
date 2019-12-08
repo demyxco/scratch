@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 # Demyx
 # https://demyx.sh
 
@@ -6,6 +6,16 @@
 if [[ ! -d /home/demyx/.ssh ]]; then
     mkdir -p /home/demyx/.ssh
 fi
+
+# Usable environment variables
+echo "# AUTO GENERATED
+DEMYX_BUILD=$DEMYX_BUILD
+DEMYX_BRANCH=$DEMYX_BRANCH
+DEMYX_MODE=$DEMYX_MODE
+DEMYX_HOST=$DEMYX_HOST
+DEMYX_SSH=$DEMYX_SSH
+DOCKER_HOST=${DOCKER_HOST:-/var/run/docker.sock}
+" > /home/demyx/.ssh/environment
 
 # Prevents ssh errors from local machine
 if [[ -f /home/demyx/.ssh/ssh_host_rsa_key ]]; then

@@ -98,7 +98,7 @@ demyx_utility() {
             demyx_execute -v demyx_table "$PRINT_TABLE"
         fi
     elif [[ -n "$DEMYX_UTILITY_USER" ]]; then
-        source "$DEMYX_FUNCTION"/name.sh
+        demyx_source name
         DEMYX_UTILITY_USER="$(demyx_name)"
         PRINT_TABLE="DEMYX^ UTILITY\n"
         PRINT_TABLE+="USERNAME^ $DEMYX_UTILITY_USER"
@@ -119,6 +119,6 @@ demyx_utility() {
         shift
         DEMYX_UTILITY_EXEC="$@"
         [[ -z "$DEMYX_UTILITY_EXEC" ]] && demyx_die 'demyx util needs a command'
-        docker run -it --rm demyx/utilities "$DEMYX_UTILITY_EXEC"
+        docker run -it --rm demyx/utilities sh -c "$DEMYX_UTILITY_EXEC"
     fi
 }

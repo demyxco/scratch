@@ -198,6 +198,9 @@ demyx_config() {
             --upgrade)
                 DEMYX_CONFIG_UPGRADE=1
                 ;;
+            --upgrade-db)
+                DEMYX_CONFIG_UPGRADE_DB=1
+                ;;
             --wp-cpu=null|--wp-cpu=?*)
                 DEMYX_CONFIG_WP_CPU="${3#*=}"
                 DEMYX_CONFIG_RESOURCE=1
@@ -256,12 +259,17 @@ demyx_config() {
                 demyx_echo "Sleep for $DEMYX_CONFIG_SLEEP"
                 demyx_execute sleep "$DEMYX_CONFIG_SLEEP"
             fi
+            if [[ -n "$DEMYX_CONFIG_UPGRADE_DB" ]]; then
+                DEMYX_CHECK_APP_DB_IMAGE="$(grep demyx/mariadb:edge "$DEMYX_WP"/"$i"/docker-compose.yml)"
+                [[ -n "$DEMYX_CHECK_APP_DB_IMAGE" ]] && continue
+                demyx config "$i" --upgrade-db
+            fi
         done
     else
         demyx_app_config
         if [[ "$DEMYX_APP_TYPE" = wp ]]; then
-            source "$DEMYX_FUNCTION"/env.sh
-            source "$DEMYX_FUNCTION"/yml.sh
+            demyx_source env
+            demyx_source yml
             
             cd "$DEMYX_APP_PATH" || exit
 
@@ -299,7 +307,7 @@ demyx_config() {
                 fi
 
                 demyx_echo "Turning on wp-login.php basic auth"
-                demyx_execute docker cp "$DEMYX_APP_PATH"/.htpasswd "$DEMYX_APP_NX_CONTAINER":/; \
+                demyx_execute docker cp "$DEMYX_APP_PATH"/.htpasswd "$DEMYX_APP_NX_CONTAINER":/demyx; \
                     docker exec -t "$DEMYX_APP_NX_CONTAINER" sh -c "sed -i 's|#auth_basic|auth_basic|g' /demyx/common/wpcommon.conf" && \
                     sed -i "s|DEMYX_APP_AUTH_WP=.*|DEMYX_APP_AUTH_WP=$DEMYX_PARSE_BASIC_AUTH|g" "$DEMYX_APP_PATH"/.env
 
@@ -364,7 +372,7 @@ demyx_config() {
                 demyx_execute demyx wp "$DEMYX_APP_DOMAIN" option update rt_wp_nginx_helper_options '{"enable_purge":"1","cache_method":"enable_fastcgi","purge_method":"get_request","enable_map":null,"enable_log":null,"log_level":"INFO","log_filesize":"5","enable_stamp":null,"purge_homepage_on_edit":"1","purge_homepage_on_del":"1","purge_archive_on_edit":"1","purge_archive_on_del":"1","purge_archive_on_new_comment":"1","purge_archive_on_deleted_comment":"1","purge_page_on_mod":"1","purge_page_on_new_comment":"1","purge_page_on_deleted_comment":"1","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:","purge_url":"","redis_enabled_by_constant":0}' --format=json
 
                 demyx_echo 'Updating configs'
-                demyx_execute docker exec -t "$DEMYX_APP_NX_CONTAINER" sh -c "sed -i 's|#include /demyx/cache|include /demyx/cache|g' /demyx/wp.conf" && \
+                demyx_execute docker exec -t -e NGINX_CACHE=true "$DEMYX_APP_NX_CONTAINER" demyx-wp; \
                     sed -i "s|DEMYX_APP_CACHE=.*|DEMYX_APP_CACHE=true|g" "$DEMYX_APP_PATH"/.env
 
                 demyx config "$DEMYX_APP_DOMAIN" --restart=nginx
@@ -379,7 +387,7 @@ demyx_config() {
                 demyx_execute demyx wp "$DEMYX_APP_DOMAIN" plugin deactivate nginx-helper
                 
                 demyx_echo 'Updating configs'
-                demyx_execute docker exec -t "$DEMYX_APP_NX_CONTAINER" sh -c "sed -i 's|include /demyx/cache|#include /demyx/cache|g' /demyx/wp.conf" && \
+                demyx_execute docker exec -t -e NGINX_CACHE=false "$DEMYX_APP_NX_CONTAINER" demyx-wp; \
                     sed -i "s|DEMYX_APP_CACHE=.*|DEMYX_APP_CACHE=false|g" "$DEMYX_APP_PATH"/.env
 
                 demyx config "$DEMYX_APP_DOMAIN" --restart=nginx
@@ -411,8 +419,6 @@ demyx_config() {
                     sed -i "s|DEMYX_APP_CDN=.*|DEMYX_APP_CDN=false|g" "$DEMYX_APP_PATH"/.env
             fi
             if [[ -n "$DEMYX_CONFIG_CLEAN" ]]; then
-                demyx_app_is_up
-
                 if [[ -z "$DEMYX_CONFIG_NO_BACKUP" ]]; then
                     demyx backup "$DEMYX_APP_DOMAIN"
                 fi
@@ -494,17 +500,27 @@ demyx_config() {
 
                 if [[ "$DEMYX_APP_SSL" = false ]]; then
                     DEMYX_CONFIG_DEV_PROTO="http://$DEMYX_APP_DOMAIN"
+                    DEMYX_CONFIG_DEV_BS_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.entrypoints=http"
+                    DEMYX_CONFIG_DEV_BS_SOCKET_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.entrypoints=http"
+                    DEMYX_CONFIG_DEV_CS_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.entrypoints=http"
                 else
                     DEMYX_CONFIG_DEV_PROTO="https://$DEMYX_APP_DOMAIN"
+                    DEMYX_CONFIG_DEV_BS_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.entrypoints=https 
+                    -l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.tls.certresolver=demyx"
+                    DEMYX_CONFIG_DEV_BS_SOCKET_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.entrypoints=https 
+                    -l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.tls.certresolver=demyx"
+                    DEMYX_CONFIG_DEV_CS_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.entrypoints=https 
+                    -l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.tls.certresolver=demyx"
                 fi
 
+                DEMYX_CONFIG_DEV_PASSWORD="$(demyx util --pass --raw)"
                 DEMYX_CONFIG_DEV_CS_URI="${DEMYX_CONFIG_DEV_PROTO}${DEMYX_CONFIG_DEV_BASE_PATH}/cs/"
                 DEMYX_CONFIG_DEV_BS_URI="${DEMYX_CONFIG_DEV_PROTO}${DEMYX_CONFIG_DEV_BASE_PATH}/bs/"
 
                 demyx config "$DEMYX_APP_DOMAIN" --opcache=false
 
                 if [[ "$DEMYX_APP_WP_IMAGE" = demyx/wordpress ]]; then
-                    source "$DEMYX_STACK"/.env
+                    demyx_source stack
 
                     if [ "$DEMYX_CONFIG_FILES" = themes ]; then
                         DEMYX_BS_FILES="\"/var/www/html/wp-content/themes/**/*\""
@@ -516,8 +532,6 @@ demyx_config() {
                         DEMYX_BS_FILES="[\"/var/www/html/wp-content/themes/**/*\", \"/var/www/html/wp-content/plugins/**/*\"]"
                     fi
 
-                    demyx_echo 'Creating browser-sync'
-
                     if [[ -n "$DEMYX_CONFIG_EXPOSE" || -n "$(demyx_validate_ip)" ]]; then
                         DEMYX_IP_DOMAIN="$(demyx info stack --filter=DEMYX_STACK_SERVER_IP)"
                         DEMYX_CONFIG_DEV_BS_PORT="$(demyx_open_port 3000)"
@@ -525,6 +539,7 @@ demyx_config() {
                         DEMYX_CONFIG_DEV_BS_URI="http://${DEMYX_IP_DOMAIN}:${DEMYX_CONFIG_DEV_BS_PORT}"
                         DEMYX_CONFIG_DEV_CS_URI="http://${DEMYX_IP_DOMAIN}:${DEMYX_CONFIG_DEV_CS_PORT}"
                         
+                        demyx_echo 'Creating browser-sync'
                         demyx_execute docker run -dit --rm \
                             --name="$DEMYX_APP_COMPOSE_PROJECT"_bs \
                             --network=demyx \
@@ -549,40 +564,38 @@ demyx_config() {
                             --volumes-from="$DEMYX_APP_WP_CONTAINER" \
                             -p "$DEMYX_CONFIG_DEV_CS_PORT":8080 \
                             -v demyx_cs:/home/demyx \
-                            -e PASSWORD="$MARIADB_ROOT_PASSWORD" \
+                            -e PASSWORD="$DEMYX_CONFIG_DEV_PASSWORD" \
                             -e CODER_BASE_PATH=false \
                             -e CODER_BASE_PREFIX=false \
                             demyx/code-server:wp 2>/dev/null
                     else
+                        demyx_echo 'Creating browser-sync'
                         demyx_execute docker run -dit --rm \
                             --name="$DEMYX_APP_COMPOSE_PROJECT"_bs \
                             --network=demyx \
                             $DEMYX_CONFIG_DEV_RESOURCES \
                             --volumes-from="$DEMYX_APP_WP_CONTAINER" \
-                            -e BS_DOMAIN_MATCH="$DEMYX_CONFIG_DEV_BS_URI" \
-                            -e BS_DOMAIN_RETURN="$DEMYX_CONFIG_DEV_BS_URI" \
-                            -e BS_DOMAIN_SOCKET="$DEMYX_CONFIG_DEV_BS_URI" \
+                            -e BS_DOMAIN_MATCH="$DEMYX_APP_DOMAIN" \
+                            -e BS_DOMAIN_RETURN="${DEMYX_APP_DOMAIN}" \
+                            -e BS_DOMAIN_SOCKET="${DEMYX_APP_DOMAIN}" \
                             -e BS_PROXY="$DEMYX_APP_NX_CONTAINER" \
-                            -e BS_DOMAIN="$DEMYX_APP_DOMAIN" \
                             -e BS_FILES="$DEMYX_BS_FILES" \
                             -e BS_PATH="$DEMYX_CONFIG_DEV_BASE_PATH" \
                             -l "traefik.enable=true" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.rule=(Host(\`${DEMYX_APP_DOMAIN}\`) && PathPrefix(\`${DEMYX_CONFIG_DEV_BASE_PATH}/bs/\`))" \
-                            -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.entrypoints=https" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.middlewares=${DEMYX_APP_COMPOSE_PROJECT}-bs-prefix" \
                             -l "traefik.http.middlewares.${DEMYX_APP_COMPOSE_PROJECT}-bs-prefix.stripprefix.prefixes=${DEMYX_CONFIG_DEV_BASE_PATH}/bs/" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.service=${DEMYX_APP_COMPOSE_PROJECT}-bs" \
                             -l "traefik.http.services.${DEMYX_APP_COMPOSE_PROJECT}-bs.loadbalancer.server.port=3000" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.priority=99" \
-                            -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-bs.tls.certresolver=demyx" \
+                            $DEMYX_CONFIG_DEV_BS_LABELS \
                             \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.rule=(Host(\`${DEMYX_APP_DOMAIN}\`) && PathPrefix(\`/browser-sync/socket.io/\`))" \
-                            -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.middlewares=${DEMYX_APP_COMPOSE_PROJECT}-socket-prefix" \
                             -l "traefik.http.middlewares.${DEMYX_APP_COMPOSE_PROJECT}-socket-prefix.stripprefix.prefixes=${DEMYX_CONFIG_DEV_BASE_PATH}/bs/browser-sync/socket.io/" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.service=${DEMYX_APP_COMPOSE_PROJECT}-socket" \
                             -l "traefik.http.services.${DEMYX_APP_COMPOSE_PROJECT}-socket.loadbalancer.server.port=3000" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.priority=99" \
-                            -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-socket.tls.certresolver=demyx" \
+                            $DEMYX_CONFIG_DEV_BS_SOCKET_LABELS \
                             demyx/browsersync 2>/dev/null
 
                         demyx_echo 'Creating code-server'
@@ -593,17 +606,16 @@ demyx_config() {
                             $DEMYX_CONFIG_DEV_RESOURCES \
                             --volumes-from="$DEMYX_APP_WP_CONTAINER" \
                             -v demyx_cs:/home/demyx \
-                            -e PASSWORD="$MARIADB_ROOT_PASSWORD" \
+                            -e PASSWORD="$DEMYX_CONFIG_DEV_PASSWORD" \
                             -e CODER_BASE_PATH="$DEMYX_CONFIG_DEV_BASE_PATH" \
                             -l "traefik.enable=true" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.rule=(Host(\`${DEMYX_APP_DOMAIN}\`) && PathPrefix(\`${DEMYX_CONFIG_DEV_BASE_PATH}/cs/\`))" \
-                            -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.entrypoints=https" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.middlewares=${DEMYX_APP_COMPOSE_PROJECT}-cs-prefix" \
                             -l "traefik.http.middlewares.${DEMYX_APP_COMPOSE_PROJECT}-cs-prefix.stripprefix.prefixes=${DEMYX_CONFIG_DEV_BASE_PATH}/cs/" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.service=${DEMYX_APP_COMPOSE_PROJECT}-cs" \
                             -l "traefik.http.services.${DEMYX_APP_COMPOSE_PROJECT}-cs.loadbalancer.server.port=8080" \
                             -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.priority=99" \
-                            -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-cs.tls.certresolver=demyx" \
+                            $DEMYX_CONFIG_DEV_CS_LABELS \
                             demyx/code-server:wp 2>/dev/null
                     fi
                 else
@@ -617,7 +629,7 @@ demyx_config() {
                         $DEMYX_CONFIG_DEV_RESOURCES \
                         --volumes-from="$DEMYX_APP_WP_CONTAINER" \
                         -v demyx_cs:/home/demyx \
-                        -e PASSWORD="$MARIADB_ROOT_PASSWORD" \
+                        -e PASSWORD="$DEMYX_CONFIG_DEV_PASSWORD" \
                         -e CODER_BASE_PATH="$DEMYX_CONFIG_DEV_BASE_PATH" \
                         -e BS_PROXY="$DEMYX_APP_NX_CONTAINER" \
                         -l "traefik.enable=true" \
@@ -682,7 +694,7 @@ demyx_config() {
                 PRINT_TABLE="DEMYX^ DEVELOPMENT\n"
                 PRINT_TABLE+="CODE-SERVER^ $DEMYX_CONFIG_DEV_CS_URI\n"
                 PRINT_TABLE+="BROWSERSYNC^ $DEMYX_CONFIG_DEV_BS_URI\n"
-                PRINT_TABLE+="PASSWORD^ $MARIADB_ROOT_PASSWORD"
+                PRINT_TABLE+="PASSWORD^ $DEMYX_CONFIG_DEV_PASSWORD"
                 demyx_execute -v demyx_table "$PRINT_TABLE"
             elif [[ "$DEMYX_CONFIG_DEV" = false ]]; then
                 demyx_app_is_up
@@ -734,8 +746,7 @@ demyx_config() {
                 fi
 
                 demyx_echo 'Turning on PHP opcache'
-                demyx_execute docker exec -t "$DEMYX_APP_WP_CONTAINER" sh -c "sed -i 's|opcache.enable=0|opcache.enable=1|g' /demyx/php.ini; sed -i 's|opcache.enable_cli=0|opcache.enable_cli=1|g' /demyx/php.ini" && \
-                    sed -i "s|DEMYX_APP_PHP_OPCACHE=.*|DEMYX_APP_PHP_OPCACHE=true|g" "$DEMYX_APP_PATH"/.env
+                demyx_execute sed -i "s|DEMYX_APP_PHP_OPCACHE=.*|DEMYX_APP_PHP_OPCACHE=true|g" "$DEMYX_APP_PATH"/.env
 
                 demyx config "$DEMYX_APP_DOMAIN" --restart=php
             elif [[ "$DEMYX_CONFIG_OPCACHE" = false ]]; then
@@ -746,8 +757,7 @@ demyx_config() {
                 fi
                 
                 demyx_echo 'Turning off PHP opcache'
-                demyx_execute docker exec -t "$DEMYX_APP_WP_CONTAINER" sh -c "sed -i 's|opcache.enable=1|opcache.enable=0|g' /demyx/php.ini; sed -i 's|opcache.enable_cli=1|opcache.enable_cli=0|g' /demyx/php.ini" && \
-                    sed -i "s|DEMYX_APP_PHP_OPCACHE=.*|DEMYX_APP_PHP_OPCACHE=false|g" "$DEMYX_APP_PATH"/.env
+                demyx_execute sed -i "s|DEMYX_APP_PHP_OPCACHE=.*|DEMYX_APP_PHP_OPCACHE=false|g" "$DEMYX_APP_PATH"/.env
 
                 demyx config "$DEMYX_APP_DOMAIN" --restart=php
             fi
@@ -792,10 +802,13 @@ demyx_config() {
                 if [[ -n "$DEMYX_CONFIG_EXPOSE" || "$DEMYX_APP_SSL" = false ]]; then
                     [[ -n "$DEMYX_CONFIG_EXPOSE" ]] && DEMYX_APP_DOMAIN="$(demyx info stack --filter=DEMYX_STACK_SERVER_IP)"
                     DEMYX_CONFIG_PMA_PROTO="http://$DEMYX_APP_DOMAIN"
+                    DEMYX_CONFIG_PMA_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.entrypoints=http"
                 else
                     DEMYX_CONFIG_PMA_PROTO="https://$DEMYX_APP_DOMAIN"
+                    DEMYX_CONFIG_PMA_LABELS="-l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.entrypoints=https 
+                            -l traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.tls.certresolver=demyx"
                 fi
-                
+
                 DEMYX_CONFIG_PMA_ABSOLUTE_URI="$DEMYX_CONFIG_PMA_PROTO"/demyx/pma/
 
                 demyx_echo 'Creating phpMyAdmin container'
@@ -826,11 +839,10 @@ demyx_config() {
                         -e PMA_ABSOLUTE_URI="$DEMYX_CONFIG_PMA_ABSOLUTE_URI" \
                         -l "traefik.enable=true" \
                         -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.rule=(Host(\`${DEMYX_APP_DOMAIN}\`) && PathPrefix(\`/demyx/pma/\`))" \
-                        -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.entrypoints=https" \
                         -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.middlewares=${DEMYX_APP_COMPOSE_PROJECT}-pma-prefix" \
                         -l "traefik.http.middlewares.${DEMYX_APP_COMPOSE_PROJECT}-pma-prefix.stripprefix.prefixes=/demyx/pma/" \
-                        -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.tls.certresolver=demyx" \
                         -l "traefik.http.routers.${DEMYX_APP_COMPOSE_PROJECT}-pma.priority=99" \
+                        $DEMYX_CONFIG_PMA_LABELS \
                         phpmyadmin/phpmyadmin 2>/dev/null
                 fi
 
@@ -856,7 +868,7 @@ demyx_config() {
                 fi
 
                 demyx_echo 'Turning on rate limiting'
-                demyx_execute docker exec -t "$DEMYX_APP_NX_CONTAINER" sh -c "sed -i 's|#limit_req|limit_req|g' /demyx/wp.conf; sed -i 's|#limit_conn|limit_conn|g' /demyx/wp.conf"; \
+                demyx_execute docker exec -t -e NGINX_RATE_LIMIT=true "$DEMYX_APP_NX_CONTAINER" demyx-wp; \
                     sed -i "s|DEMYX_APP_RATE_LIMIT=.*|DEMYX_APP_RATE_LIMIT=true|g" "$DEMYX_APP_PATH"/.env
 
                 demyx config "$DEMYX_APP_DOMAIN" --restart=nginx
@@ -868,7 +880,7 @@ demyx_config() {
                 fi
 
                 demyx_echo 'Turning off rate limiting'
-                demyx_execute docker exec -t "$DEMYX_APP_NX_CONTAINER" sh -c "sed -i 's|limit_req|#limit_req|g' /demyx/wp.conf; sed -i 's|limit_conn|#limit_conn|g' /demyx/wp.conf"; \
+                demyx_execute docker exec -t -e NGINX_RATE_LIMIT=false "$DEMYX_APP_NX_CONTAINER" demyx-wp; \
                     sed -i "s|DEMYX_APP_RATE_LIMIT=.*|DEMYX_APP_RATE_LIMIT=false|g" "$DEMYX_APP_PATH"/.env
 
                 demyx config "$DEMYX_APP_DOMAIN" --restart=nginx
@@ -884,7 +896,7 @@ demyx_config() {
                 demyx_echo 'Refreshing .yml'
                 demyx_execute demyx_yml
 
-                demyx compose "$DEMYX_APP_DOMAIN" up -d
+                demyx compose "$DEMYX_APP_DOMAIN" fr
 
                 if [[ -z "$DEMYX_CONFIG_SKIP_CHECKS" ]]; then
                     [[ "$DEMYX_APP_RATE_LIMIT" = true ]] && demyx config "$DEMYX_APP_DOMAIN" --rate-limit -f
@@ -947,8 +959,7 @@ demyx_config() {
                     demyx_echo "Restarting NGINX"
                     demyx_execute docker exec -t "$DEMYX_APP_NX_CONTAINER" sh -c "rm -rf /tmp/nginx-cache; sudo nginx -c /demyx/wp.conf -s reload"
                 elif [ "$DEMYX_CONFIG_RESTART" = php ]; then
-                    demyx_echo "Restarting php-fpm"
-                    demyx_execute docker exec -t "$DEMYX_APP_WP_CONTAINER" sh -c "pkill php-fpm"
+                    demyx compose "$DEMYX_APP_DOMAIN" up -d --force-recreate wp_"$DEMYX_APP_ID"
                 fi
             fi
             if [[ "$DEMYX_CONFIG_SFTP" = true ]]; then
@@ -1057,6 +1068,35 @@ demyx_config() {
                     demyx_execute -v echo -e '\n\e[33m[WARNING]\e[39m These sites needs upgrading:'; \
                         demyx_upgrade_apps
                 fi
+            fi
+            if [[ -n "$DEMYX_CONFIG_UPGRADE_DB" ]]; then
+                DEMYX_CHECK_APP_DB_IMAGE="$(grep demyx/mariadb:edge "$DEMYX_APP_PATH"/docker-compose.yml)"
+                [[ -n "$DEMYX_CHECK_APP_DB_IMAGE" ]] && demyx_die "$DEMYX_APP_DOMAIN is already upgraded"
+
+                demyx_source yml
+
+                demyx backup "$DEMYX_APP_DOMAIN"
+                demyx config "$DEMYX_APP_DOMAIN" --healthcheck=false
+                
+                demyx_echo 'Putting WordPress into maintenance mode'
+                demyx_execute docker exec -t "$DEMYX_APP_WP_CONTAINER" sh -c "echo '<?php \$upgrading = time(); ?>' > .maintenance"
+
+                demyx_echo "Upgrading $DEMYX_APP_DOMAIN database"
+                demyx_execute docker stop "$DEMYX_APP_DB_CONTAINER"; \
+                    docker rm -f "$DEMYX_APP_DB_CONTAINER"; \
+                    docker run -t --rm \
+                    -v wp_"$DEMYX_APP_ID"_db:/var/lib/mysql \
+                    -e MARIADB_ROOT_PASSWORD="$MARIADB_ROOT_PASSWORD" \
+                    -e MARIADB_DATABASE="$WORDPRESS_DB_NAME" \
+                    -e MARIADB_USERNAME="$WORDPRESS_DB_USER" \
+                    -e MARIADB_PASSWORD="$WORDPRESS_DB_PASSWORD" \
+                    --entrypoint=demyx-upgrade \
+                    demyx/mariadb:edge; \
+                    demyx_yml; \
+                    docker exec -t "$DEMYX_APP_WP_CONTAINER" sh -c "rm -f .maintenance"
+
+                demyx config "$DEMYX_APP_DOMAIN" --healthcheck
+                demyx compose "$DEMYX_APP_DOMAIN" fr
             fi
             if [[ "$DEMYX_CONFIG_WP_UPDATE" = true ]]; then
                 if [[ -z "$DEMYX_CONFIG_FORCE" ]]; then

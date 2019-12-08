@@ -1,8 +1,14 @@
 # Demyx
 # https://demyx.sh
 
+DEMYX_MOTD_CHECK_WP="$(ls -A "$DEMYX_WP")"
+
+demyx_motd_yml_check() {
+    if [[ ! -f "$DEMYX"/docker-compose.yml ]]; then
+        demyx_execute -v echo -e "\e[31m[CRITICAL]\e[39m The demyx stack needs to be updated on the host, please run these commands on the host:\n\n- demyx update\n- demyx update --stack (needs to be ran again with this flag)\n- demyx rm\n- demyx\n"
+    fi
+}
 demyx_motd_dev_warning() {
-    DEMYX_MOTD_CHECK_WP="$(ls -A "$DEMYX_WP")"
     if [[ -n "$DEMYX_MOTD_CHECK_WP" ]]; then
         cd "$DEMYX_WP"
         for i in *
@@ -12,6 +18,50 @@ demyx_motd_dev_warning() {
                 demyx_execute -v echo -e "\e[33m[WARNING]\e[39m $i is in development mode"
             fi
         done
+    fi
+}
+demyx_motd_getting_started() {
+    if [[ ! -f "$DEMYX_STACK"/.env ]]; then
+        demyx_execute -v echo -e "\e[34m[INFO]\e[39m Looks like the stack isn't installed, run this command to install:\n\n- demyx stack install --domain=your-domain --email=info@your-domain --user=your-user --pass=your-pass\n"
+        demyx_execute -v echo -e "\e[34m[INFO]\e[39m To create a WordPress site: demyx run ${DEMYX_MOTD_GETTING_STARTED_DOMAIN:-domain.tld}"
+        demyx_execute -v echo -e "\e[34m[INFO]\e[39m To create a Bedrock site: demyx run ${DEMYX_MOTD_GETTING_STARTED_DOMAIN:-domain.tld} --bedrock"
+    else
+        if [[ -z "$DEMYX_MOTD_CHECK_WP" ]]; then
+            DEMYX_MOTD_GETTING_STARTED_DOMAIN="$(demyx info stack --filter=DEMYX_STACK_DOMAIN)"
+            demyx_execute -v echo -e "\e[34m[INFO]\e[39m To create a WordPress site: demyx run ${DEMYX_MOTD_GETTING_STARTED_DOMAIN:-domain.tld}"
+            demyx_execute -v echo -e "\e[34m[INFO]\e[39m To create a Bedrock site: demyx run ${DEMYX_MOTD_GETTING_STARTED_DOMAIN:-domain.tld} --bedrock"
+        fi
+    fi
+}
+demyx_motd_mariadb_check() {
+    if [[ -n "$DEMYX_MOTD_CHECK_WP" ]]; then
+        cd "$DEMYX_WP"
+        for i in *
+        do
+            DEMYX_MOTD_CHECK_MARIADB="$(grep "demyx/mariadb:edge" /demyx/app/wp/"$i"/docker-compose.yml)"
+            [[ -z "$DEMYX_MOTD_CHECK_MARIADB" ]] && DEMYX_MOTD_CHECK_MARIADB_TRUE=true
+        done
+
+        if [[ "$DEMYX_MOTD_CHECK_MARIADB_TRUE" = true ]]; then
+            demyx_execute -v echo -e "\e[34m[INFO]\e[39m MariaDB needs an upgrade. This will temporarily bring down the sites during the upgrade. Please run the commands:\n\n- Test a single site: demyx config domain.tld --upgrade-db\n- Upgrade all sites: demyx config all --upgrade-db\n"
+        fi
+    fi
+}
+demyx_motd_stack_check() {
+    if [[ -f "$DEMYX_STACK"/.env ]]; then
+        demyx_source stack
+        if [[ "$DEMYX_STACK_AUTO_UPDATE" = false ]]; then
+            demyx_execute -v echo -e "\e[33m[WARNING]\e[39m Auto updates are disabled, demyx stack --auto-update to enable"
+        fi
+        if [[ "$DEMYX_STACK_BACKUP" = false ]]; then
+            demyx_execute -v echo -e "\e[33m[WARNING]\e[39m Auto backups are disabled, demyx stack --backup to enable"
+        fi
+        if [[ "$DEMYX_STACK_MONITOR" = false ]]; then
+            demyx_execute -v echo -e "\e[33m[WARNING]\e[39m Global monitors are disabled, demyx stack --monitor to enable"
+        fi
+        if [[ "$DEMYX_STACK_HEALTHCHECK" = false ]]; then
+            demyx_execute -v echo -e "\e[33m[WARNING]\e[39m Global healthchecks are disabled, demyx stack --healthcheck to enable"
+        fi
     fi
 }
 #demyx_motd_git_latest() {
@@ -36,44 +86,12 @@ demyx_motd() {
         demyx_execute -v echo -e '\e[31m==========[BREAKING CHANGES]==========\e[39m\n\nFor best security practice and performance, all demyx containers will now\nrun as the demyx user, including the WordPress containers. Each WordPress\nsites will now have a total of 3 containers: MariaDB, NGINX, and WordPress.\nCertain demyx commands will not work until you upgrade the sites.\n\nPlease run the following commands:\n'
         demyx_upgrade_apps
     else
-        if [[ -f /tmp/demyx-dev ]]; then
-            DEMYX_MOTD_MODE=development
-        else
-            DEMYX_MOTD_MODE=production
-        fi
-
-        DEMYX_MOTD_BACKUPS="$([[ -d "$DEMYX_BACKUP_WP" ]] && du -sh "$DEMYX_BACKUP_WP" | cut -f1)"
-        [[ -z "$DEMYX_MOTD_BACKUPS" ]] && DEMYX_MOTD_BACKUPS=0
-        DEMYX_MOTD_SYSTEM_INFO="$(demyx info system --json)"
-        DEMYX_MOTD_SYSTEM_DISK="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .disk_used | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_DISK_TOTAL="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .disk_total | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_DISK_TOTAL_PERCENTAGE="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .disk_total_percentage | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_DISK_TOTAL_PERCENTAGE_NUMERIC="$(echo "$DEMYX_MOTD_SYSTEM_DISK_TOTAL_PERCENTAGE" | sed "s|%||g")"
-        DEMYX_MOTD_SYSTEM_MEMORY="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .memory_used | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_MEMORY_TOTAL="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .memory_total | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_UPTIME="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .uptime | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_LOAD="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .load_average | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_CONTAINER="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .container_running | sed 's|"||g')"
-        DEMYX_MOTD_SYSTEM_CONTAINER_DEAD="$(echo "$DEMYX_MOTD_SYSTEM_INFO" | jq .container_dead | sed 's|"||g')"
-
-        if [[ "$DEMYX_MOTD_SYSTEM_CONTAINER_DEAD" = 0 ]]; then
-            DEMYX_MOTD_SYSTEM_CONTAINER_DEAD_COUNT=
-        else
-            DEMYX_MOTD_SYSTEM_CONTAINER_DEAD_COUNT="($DEMYX_MOTD_SYSTEM_CONTAINER_DEAD dead)"
-        fi
-
-        PRINT_MOTD_TABLE="DEMYX^ SYSTEM INFO\n"
-        PRINT_MOTD_TABLE+="MODE^ $(echo "$DEMYX_MOTD_MODE" | tr [a-z] [A-Z])\n"
-        PRINT_MOTD_TABLE+="HOST^ $DEMYX_HOST\n"
-        PRINT_MOTD_TABLE+="SSH^ $DEMYX_SSH\n"
-        PRINT_MOTD_TABLE+="BACKUPS^ $DEMYX_MOTD_BACKUPS\n"
-        PRINT_MOTD_TABLE+="DISK^ $DEMYX_MOTD_SYSTEM_DISK/$DEMYX_MOTD_SYSTEM_DISK_TOTAL ($DEMYX_MOTD_SYSTEM_DISK_TOTAL_PERCENTAGE)\n"
-        PRINT_MOTD_TABLE+="MEMORY^ $DEMYX_MOTD_SYSTEM_MEMORY/$DEMYX_MOTD_SYSTEM_MEMORY_TOTAL\n"
-        PRINT_MOTD_TABLE+="UPTIME^ ${DEMYX_MOTD_SYSTEM_UPTIME}\n"
-        PRINT_MOTD_TABLE+="LOAD^ $DEMYX_MOTD_SYSTEM_LOAD\n"
-        PRINT_MOTD_TABLE+="CONTAINERS^ $DEMYX_MOTD_SYSTEM_CONTAINER $DEMYX_MOTD_SYSTEM_CONTAINER_DEAD_COUNT"
-        demyx_execute -v demyx_table "$PRINT_MOTD_TABLE"
+        demyx info system
+        echo
     fi
-    
+    demyx_motd_yml_check
+    demyx_motd_getting_started
+    demyx_motd_mariadb_check
+    demyx_motd_stack_check
     demyx_motd_dev_warning
 }

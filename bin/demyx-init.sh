@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 # Demyx
 # https://demyx.sh
 
@@ -8,7 +8,7 @@ source /etc/demyx/.config
 demyx-skel
 
 # Run init scripts when docker.sock is mounted
-if [[ -n "$(ls /run | grep docker.sock)" ]]; then
+if [[ -n "$(ls /run | grep docker.sock)" || -n "$DOCKER_HOST" ]]; then
     # Execute update script
     demyx update &
 

@@ -5,6 +5,7 @@
 [![Alpine](https://img.shields.io/badge/alpine-3.10.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Docker Client](https://img.shields.io/badge/docker_client-19.03.5-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
+[![Become a Patron!](https://img.shields.io/badge/become%20a%20patron-$5-informational?style=flat&color=blue)](https://www.patreon.com/bePatron?u=23406156)
 
 Demyx is a Docker image that automates and manages WordPress installations. Traefik for reverse proxy with Lets Encrypt SSL/TLS. WordPress sites are powered by NGINX, PHP, and MariaDB.
 
@@ -21,7 +22,7 @@ Demyx is a Docker image that automates and manages WordPress installations. Trae
 * Rolling release updates
 * For support: [#demyx](https://webchat.freenode.net/?channel=#demyx)
 
-### WordPress Features
+### Features
 * SSL turned on by default
 * Basic auth site-wide or wp-login.php
 * Secure NGINX/PHP configurations
@@ -35,21 +36,27 @@ Demyx is a Docker image that automates and manages WordPress installations. Trae
 
 ### Requirements
 * Docker
-* Bash
 * Dedicated/KVM server with Linux
 * Port 80 and 443 must be open
 * CentOS/Fedora/RHEL requires [selinux-dockersock](https://github.com/dpw/selinux-dockersock) or similar fix
-* Primary domain must be pointed to server's IP and must have a wildcard CNAME subdomain
+
+### Tested Distros
+- Alpine 3.10 x64
+- Debian 10 x64
+- Ubuntu 19.10 x64
+- CentOS 7.6 x64 (Probably works on Fedora and RHEL)
 
 ### Install
 ```
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/demyxco/demyx/master/install.sh)"
+bash -c "$(curl -fsSL https://demyx.sh/install)"
 ```
 
 ### Getting Started
+- [Step-by-Step Guide](https://demyx.sh/docker/how-to-easily-manage-multiple-wordpress-sites-in-docker-using-demyx/)
+
 ```
 # Create a WordPress site on the host OS
-demyx exec run domain.tld --cdn --cache
+demyx cmd run domain.tld --cdn --cache
 
 # Create a WordPress site in the demyx container
 demyx run domain.tld --cdn --cache
@@ -59,7 +66,7 @@ demyx run domain.tld --bedrock
 ```
 
 ### Demyx Image
-Since the image needs docker.sock to be mounted and the Docker binary is included, I've installed sudo to only allow the demyx user to execute only one script as root. The image is put in production mode by default, meaning that /demyx directory and all it's folders and files will be set to read-only mode. This prevents the non-privelege user to modify the script and do malicious things.
+Demyx needs access to the docker.sock as a non-root user, which the chroot helper script will set that up for you. Sudo is installed to only allow the demyx user to execute specific scripts as root. The image is put in production mode by default, meaning that /demyx directory and all its folders and files will be set to read-only mode by root. This prevents the non-privelege user to modify the script and do malicious things.
 
 * user/group: demyx:demyx (1000:1000)
 * docker (binary)
@@ -70,7 +77,6 @@ Since the image needs docker.sock to be mounted and the Docker binary is include
 * jq
 * nano
 * oh-my-zsh
-* s6-overlay
 * sudo
 * tzdata
 * util-linux
@@ -78,40 +84,26 @@ Since the image needs docker.sock to be mounted and the Docker binary is include
 * zsh
 
 ### chroot.sh
-This script helps you change root to the demyx container, it's installed on the host OS and lives in /usr/local/bin. Executing the install script will automatically install the Demyx chroot script. The chroot script will start the demyx container and binds port 2222 for SSH. SSH port can be overriden by the script.
-```
-docker run -dit \
-    --name=demyx \
-    --restart=unless-stopped \
-    --hostname="$DEMYX_CHROOT_HOST" \
-    --network=demyx \
-    -e DEMYX_HOST="$DEMYX_CHROOT_HOST" \
-    -e DEMYX_SSH="$DEMYX_CHROOT_SSH" \
-    -e DEMYX_MODE="$DEMYX_CHROOT_MODE" \
-    -v /var/run/docker.sock:/var/run/docker.sock:ro \
-    -v demyx:/demyx \
-    -v demyx_user:/home/demyx \
-    -v demyx_log:/var/log/demyx \
-    -e TZ=America/Los_Angeles \
-    -p "$DEMYX_CHROOT_SSH":2222 \
-    demyx/demyx
-```
+This script helps you change root to the demyx container, it's installed on the host OS and lives in /usr/local/bin. The script will generate a docker-compose.yml for demyx and the [demyx/docker-socket-proxy](https://github.com/demyxco/docker-socket-proxy). Executing the install script will automatically install the Demyx chroot script. The chroot script will start the demyx container and binds port 2222 for SSH. SSH port can be overriden by the script.
+
 (host) demyx help
 ```
 demyx <args>          Chroot into the demyx container
-      exec            Send demyx commands from host
+      cmd             Send demyx commands from host
       help            Demyx help
       rm              Stops and removes demyx container
       restart         Stops, removes, and starts demyx container
-      tty             Execute root commands to demyx container from host
+      sh              Execute root commands to demyx container from host
       update          Update chroot.sh from GitHub
       --cpu           Set container CPU usage, --cpu=null to remove cap
       --dev           Puts demyx container into development mode
+      --edge          Use latest code updates from git repo
       --mem           Set container MEM usage, --mem=null to remove cap
       --nc            Starts demyx containr but prevent chrooting into container
       --prod          Puts demyx container into production mode
       -r, --root      Execute as root user
       --ssh           Override ssh port
+      --stack         Pulls all demyx images when running demyx update
 ```
 
 ### Commands
@@ -145,12 +137,12 @@ I have a telemetry setting that is enabled by default. It sends a curl request t
 
 If you are uncomfortable with this, then you can turn off telemetry by running the command below OR keep it turned on to show your support!
 
-* [Curl](https://github.com/demyxco/demyx/blob/master/cron/every-day.sh#L10)
+* [Curl](https://github.com/demyxco/demyx/blob/master/function/cron.sh#L40)
 * [Statistics](https://demyx.sh/statistics/)
 
 ```
 # Execute in the host OS
-demyx exec stack --telemetry=false
+demyx cmd stack --telemetry=false
 
 # Execute in the demyx container
 demyx stack --telemetry=false

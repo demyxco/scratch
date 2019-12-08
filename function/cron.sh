@@ -32,12 +32,12 @@ demyx_cron() {
         shift
     done
 
-    source "$DEMYX_STACK"/.env
+    demyx_source stack
 
     if [[ "$DEMYX_CRON" = daily ]]; then
         if [[ "$DEMYX_STACK_TELEMETRY" = true ]]; then
             echo "[$(date +%F-%T)] CROND: TELEMETRY"
-            demyx_execute -v curl -s "https://demyx.sh/?action=active&token=V1VpdGNPcWNDVlZSUDFQdFBaR0Zhdz09OjrnA1h6ZbDFJ2T6MHOwg3p4" > /dev/null
+            demyx_execute -v curl -s "https://demyx.sh/?action=active&token=V1VpdGNPcWNDVlZSUDFQdFBaR0Zhdz09OjrnA1h6ZbDFJ2T6MHOwg3p4" -o /dev/null
         fi
 
         # Ouroboros is known to crash, so stop/rm it and have the updater bring it back up 
@@ -66,6 +66,12 @@ demyx_cron() {
         demyx_execute -v git pull
         
         # Execute custom cron
+        if [[ -f /demyx/custom/cron/daily.sh ]]; then
+            echo "[$(date +%F-%T)] CROND: CUSTOM EVERY DAY"
+            demyx_execute -v bash /demyx/custom/cron/daily.sh
+        fi
+
+        # Will remove this backwards compability in January 1st, 2020
         if [[ -f /demyx/custom/cron/every-day.sh ]]; then
             echo "[$(date +%F-%T)] CROND: CUSTOM EVERY DAY"
             demyx_execute -v bash /demyx/custom/cron/every-day.sh
@@ -107,6 +113,12 @@ demyx_cron() {
         demyx_execute -v demyx healthcheck
 
         # Execute custom cron
+        if [[ -f /demyx/custom/cron/minute.sh ]]; then
+            echo "[$(date +%F-%T)] CROND: CUSTOM"
+            demyx_execute -v bash /demyx/custom/cron/minute.sh
+        fi
+
+        # Will remove this backwards compability in January 1st, 2020
         if [[ -f /demyx/custom/cron/every-minute.sh ]]; then
             echo "[$(date +%F-%T)] CROND: CUSTOM"
             demyx_execute -v bash /demyx/custom/cron/every-minute.sh
@@ -124,6 +136,12 @@ demyx_cron() {
         demyx_execute -v -v demyx wp all cron event run --due-now
 
         # Execute custom cron
+        if [[ -f /demyx/custom/cron/six-hour.sh ]]; then
+            echo "[$(date +%F-%T)] CROND: CUSTOM"
+            demyx_execute -v -v bash /demyx/custom/cron/six-hour.sh
+        fi
+
+        # Will remove this backwards compability in January 1st, 2020
         if [[ -f /demyx/custom/cron/every-6-hour.sh ]]; then
             echo "[$(date +%F-%T)] CROND: CUSTOM"
             demyx_execute -v -v bash /demyx/custom/cron/every-6-hour.sh
@@ -142,6 +160,12 @@ demyx_cron() {
         done
 
         # Execute custom cron
+        if [[ -f /demyx/custom/cron/weekly.sh ]]; then
+            echo "[$(date +%F-%T)] CROND: CUSTOM EVERY WEEK"
+            demyx_execute -v bash /demyx/custom/cron/weekly.sh
+        fi
+
+        # Will remove this backwards compability in January 1st, 2020
         if [[ -f /demyx/custom/cron/every-week.sh ]]; then
             echo "[$(date +%F-%T)] CROND: CUSTOM EVERY WEEK"
             demyx_execute -v bash /demyx/custom/cron/every-week.sh

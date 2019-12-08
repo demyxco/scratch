@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/zsh
 # Demyx
 # https://demyx.sh
  
-shell2http -log=/var/log/demyx/api.log -form \
+shell2http -log=/var/log/demyx/api.log -form -show-errors -export-all-vars -shell zsh \
     /run '
         if [[ -d /demyx/app/wp/$v_domain ]]; then
             echo "{\"status\": \"error\", \"message\": \"App already exists or missing domain.\"}"

@@ -11,6 +11,7 @@ demyx_pull() {
         [[ "$?" = 1 ]] && demyx help pull
     else
         # Only auto pull images that aren't always up
+        docker pull demyx/adminer
         docker pull demyx/docker-compose
         docker pull demyx/logrotate
         docker pull demyx/ssh
