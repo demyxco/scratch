@@ -7,7 +7,7 @@ services:
   - docker
 
 env:
-  - DEMYX=demyx
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=demyx
 
 before_install:
   - docker pull "$DEMYX"/docker-compose
