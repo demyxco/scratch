@@ -30,6 +30,7 @@ script:
   - sleep 5
   - sudo demyx cmd install --domain=domain.tld --email=info@domain.tld --user="$DEMYX_REPOSITORY" --pass="$DEMYX_REPOSITORY"
   - sudo demyx restart --nc
+  - sleep 5
   - sudo demyx cmd motd
   - sudo demyx cmd run domain.tld --ssl=false
   - docker logs demyx
