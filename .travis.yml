@@ -24,12 +24,12 @@ before_install:
 script:
   - export DEMYX_BUILD_DATE="$(date +%Y.%m.%d.%H%M%S)"
   - docker build --no-cache --build-arg DEMYX_BUILD="$DEMYX_BUILD_DATE" -t demyx/"$DEMYX_REPOSITORY" .
-  - mv chroot.sh /usr/local/bin/demyx
-  - chmod +x /usr/local/bin/demyx
-  - demyx --nc
+  - sudo mv chroot.sh /usr/local/bin/demyx
+  - sudo chmod +x /usr/local/bin/demyx
+  - sudo demyx --nc
   - sleep 5
-  - demyx cmd install --domain=domain.tld --email=info@domain.tld --user="$DEMYX_REPOSITORY" --pass="$DEMYX_REPOSITORY"
-  - demyx restart --nc
-  - demyx cmd motd
-  - demyx cmd run domain.tld
-  - demyx cmd wp domain.tld core is-installed
+  - sudo demyx cmd install --domain=domain.tld --email=info@domain.tld --user="$DEMYX_REPOSITORY" --pass="$DEMYX_REPOSITORY"
+  - sudo demyx restart --nc
+  - sudo demyx cmd motd
+  - sudo demyx cmd run domain.tld
+  - sudo demyx cmd wp domain.tld core is-installed
