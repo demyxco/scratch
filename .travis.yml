@@ -31,5 +31,5 @@ script:
   - sudo demyx cmd install --domain=domain.tld --email=info@domain.tld --user="$DEMYX_REPOSITORY" --pass="$DEMYX_REPOSITORY"
   - sudo demyx restart --nc
   - sudo demyx cmd motd
-  - sudo demyx cmd run domain.tld
+  - sudo demyx cmd run domain.tld --ssl=false
   - sudo demyx cmd wp domain.tld core is-installed
