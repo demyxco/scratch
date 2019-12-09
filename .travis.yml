@@ -34,4 +34,5 @@ script:
   - sudo demyx cmd motd
   - sudo demyx cmd run domain.tld --ssl=false
   - docker ps -a
+  - docker logs demyx
   - sudo demyx cmd wp domain.tld core is-installed
