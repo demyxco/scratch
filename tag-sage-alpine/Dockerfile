@@ -17,6 +17,8 @@ RUN set -ex; \
 RUN set -ex; \
     sudo sh -c "apk add --update --no-cache autoconf automake libtool nasm npm zlib-dev; \
         \
+        sudo npm config set unsafe-perm true; \
+        \
         sudo npm -g install yarn"
 
 # Composer
