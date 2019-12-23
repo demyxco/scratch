@@ -10,7 +10,7 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=openlitespeed
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest
