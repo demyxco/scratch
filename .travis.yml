@@ -10,12 +10,17 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=openlitespeed
+  - DOCKER_COMPOSE_VERSION=1.25.0 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=openlitespeed
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -sL https://github.com/docker/compose/releases/download/"$DOCKER_COMPOSE_VERSION"/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":bedrock tag-bedrock
+  - docker build -t demyx/"$DEMYX_REPOSITORY" tag-latest
   - docker-compose up -d
-  - sleep 10
+  - sleep 5
   - docker run -t --rm --volumes-from=demyx_wp --network=demyx demyx/wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
   - docker run -t --rm --volumes-from=demyx_wp --network=demyx demyx/wordpress:cli core is-installed
