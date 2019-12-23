@@ -21,6 +21,10 @@ before_install:
 script:
   - docker build -t demyx/"$DEMYX_REPOSITORY" tag-latest
   - docker-compose up -d
-  - sleep 5
+  - sleep 10
+  - docker logs demyx_db
+  - docker logs demyx_wp
+  - docker ps -a
+  - docker exec -t demyx_wp ls -al
   - docker run -t --rm --volumes-from=demyx_wp --network=demyx demyx/wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
   - docker run -t --rm --volumes-from=demyx_wp --network=demyx demyx/wordpress:cli core is-installed
