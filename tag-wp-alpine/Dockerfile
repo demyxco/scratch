@@ -33,30 +33,6 @@ RUN set -ex; \
     util-linux \
     zsh
 
-# Compile
-RUN set -ex; \
-    apk add --no-cache --virtual .phpize-deps \
-        autoconf \
-        dpkg-dev dpkg \
-        file \
-        g++ \
-        gcc \
-        libc-dev \
-        make \
-        pkgconf \
-        re2c; \
-    \
-    git clone https://github.com/xdebug/xdebug.git /tmp/xdebug; \
-    cd /tmp/xdebug; \
-    ./rebuild.sh; \
-    rm -rf /tmp/xdebug; \
-    \
-    # Install additional extensions
-    docker-php-ext-install gd mysqli mbstring sockets; \
-    \
-    apk del --no-network .phpize-deps; \
-    rm -vrf /var/cache/apk/*
-
 # Configure Demyx
 RUN set -ex; \
     addgroup -g 1000 -S demyx; \
@@ -121,9 +97,11 @@ RUN set -ex; \
 # Finalize
 RUN set -ex; \
     # Configure code-server for user
+    install -d -m 0755 -o demyx -g demyx /home/demyx/.code/data/User; \
+    install -d -m 0755 -o demyx -g demyx /home/demyx/.code/extensions; \
+    \
     su -c 'code-server --extensions-dir /home/demyx/.code/extensions --install-extension felixfbecker.php-debug --force' -s /bin/sh demyx; \
     \
-    install -d -m 0755 -o demyx -g demyx /home/demyx/.code/data/User; \
     mv "$CODE_SERVER_CONFIG"/settings.json /home/demyx/.code/data/User; \
     \
     # Remove php-fpm configs
