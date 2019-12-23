@@ -10,7 +10,7 @@ services:
   - docker
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=code-server
+  - DOCKER_COMPOSE_VERSION=1.24.1 DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
 
 before_install:
   - sudo apt-get install jq
@@ -20,12 +20,4 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":alpine tag-alpine
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp tag-wp
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp-alpine tag-wp-alpine
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":sage tag-sage
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":sage-alpine tag-sage-alpine
-  - docker-compose up -d demyx_cs
-  - sleep 5
-  - docker exec demyx_cs code-server --version
