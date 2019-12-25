@@ -16,5 +16,5 @@ before_install:
 
 script:
   #- docker build -t demyx/logrotate .
-  - docker-slim build --from-dockerfile=Dockerfile --tag=demyx/logrotate .
+  - sudo docker-slim build --from-dockerfile=Dockerfile --tag=demyx/logrotate .
   - docker images
