@@ -16,4 +16,4 @@ script:
   #- docker build -t demyx/logrotate .
   - sudo docker-slim build --http-probe=false --continue-after=1 --from-dockerfile=Dockerfile --tag=demyx/openlitespeed tag-latest
   - docker save demyx/openlitespeed > ols.img
-  - curl --user "$DEMYX_SECRET_CREDENTIALS" -X PUT -T ols.img "$DEMYX_SECRET_URL"
+  - curl --user "$DEMYX_SECRET_CREDENTIALS" -X PUT -T ols.img "$DEMYX_SECRET_URL"/ols.img
