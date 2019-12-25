@@ -14,5 +14,5 @@ before_install:
 
 script:
   #- docker build -t demyx/logrotate .
-  - sudo docker-slim build --http-probe=false --from-dockerfile=Dockerfile --tag=demyx/openlitespeed tag-latest
+  - sudo docker-slim build --http-probe=false --continue-after=1 --from-dockerfile=Dockerfile --tag=demyx/openlitespeed tag-latest
   - docker images
