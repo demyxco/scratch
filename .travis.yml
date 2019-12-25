@@ -10,5 +10,6 @@ services:
   - docker
 
 script:
-  - docker build -t demyx/openlitespeed tag-latest
-  - docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/docker-slim build --continue-after=enter demyx/openlitespeed
+  - docker build -t demyx/logrotate .
+  - docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/docker-slim build --continue-after=enter --http-probe=false demyx/logrotate
+  - docker images
