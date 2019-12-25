@@ -10,5 +10,5 @@ services:
   - docker
 
 script:
-  - docker pull demyx/openlitespeed
+  - docker build -t demyx/openlitespeed tag-latest
   - docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/docker-slim build --continue-after demyx/openlitespeed
