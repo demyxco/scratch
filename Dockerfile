@@ -12,8 +12,7 @@ COPY --from=demyx_go /usr/local/go /usr/local
 COPY openlitespeed-1.6.4.src.tgz /
 COPY build.sh /
 
-RUN set -ex; \
-    tar -xzf openlitespeed-1.6.4.src.tgz; \
+RUN tar -xzf openlitespeed-1.6.4.src.tgz; \
     \
     mv /build.sh /openlitespeed-1.6.4; \
     \

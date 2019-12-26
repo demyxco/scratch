@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+#set -ex
 ##############################################################################
 #    Open LiteSpeed is an open source HTTP server.                           #
 #    Copyright (C) 2013 - 2019 LiteSpeed Technologies, Inc.                  #
@@ -244,7 +244,7 @@ mkdir thirdparty/lib64
 cd thirdparty/script/
 
 # Build libmodsec first
-sed -i "s|BUILD_LIBS=.*|BUILD_LIBS='libmodsec brotli zlib bssl expat geoip ip2loc libmaxminddb luajit pcre psol udns unittest-cpp lmdb curl'|g" build_ols.sh
+#sed -i "s|BUILD_LIBS=.*|BUILD_LIBS='libmodsec brotli zlib bssl expat geoip ip2loc libmaxminddb luajit pcre psol udns unittest-cpp lmdb curl'|g" build_ols.sh
 
 sed -i -e "s/unittest-cpp/ /g" ./build_ols.sh
 
@@ -258,7 +258,7 @@ cd ${CURDIR}
 STDC_LIB=`g++ -print-file-name='libstdc++.a'`
 cp ${STDC_LIB} ../thirdparty/lib64/
 cp ../thirdparty/src/brotli/out/*.a          ../thirdparty/lib64/
-#cp ../thirdparty/src/libxml2/.libs/*.a      ../thirdparty/lib64/
+cp ../thirdparty/src/libxml2/.libs/*.a      ../thirdparty/lib64/
 cp ../thirdparty/src/libmaxminddb/include/*  ../thirdparty/include/
 
 #special case modsecurity
