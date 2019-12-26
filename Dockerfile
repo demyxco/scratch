@@ -17,8 +17,6 @@ RUN set -ex; \
     \
     mv /build.sh /openlitespeed-1.6.4; \
     \
-    ln -s /usr/bin/go /usr/local/go/bin; \
-    \
     cd openlitespeed-1.6.4; \
     chmod +x build.sh; \
     ./build.sh
