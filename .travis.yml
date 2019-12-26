@@ -9,11 +9,12 @@ notifications:
 services:
   - docker
 
-before_install:
-  - sudo mv dist_linux/docker-* /usr/local/bin
+#before_install:
+  #- sudo mv dist_linux/docker-* /usr/local/bin
 
 script:
+  docker build -t demyx/openlitespeed .
   #- docker build -t demyx/logrotate .
-  - sudo docker-slim build --http-probe=false --include-bin=ls --continue-after=1 --include-path=/usr/local/bin --from-dockerfile=Dockerfile --tag=demyx/openlitespeed tag-latest
-  - docker save demyx/openlitespeed > ols.img
-  - curl --user "$DEMYX_SECRET_CREDENTIALS" -X PUT -T ols.img "$DEMYX_SECRET_URL"/ols.img
+  #- sudo docker-slim build --http-probe=false --include-bin=ls --continue-after=1 --include-path=/usr/local/bin --from-dockerfile=Dockerfile --tag=demyx/openlitespeed tag-latest
+  #- docker save demyx/openlitespeed > ols.img
+  #- curl --user "$DEMYX_SECRET_CREDENTIALS" -X PUT -T ols.img "$DEMYX_SECRET_URL"/ols.img
