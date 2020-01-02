@@ -4,17 +4,18 @@
 notifications:
   email:
     on_success: never
-    on_failure: never
+    on_failure: always
 
 services:
   - docker
 
-#before_install:
-  #- sudo mv dist_linux/docker-* /usr/local/bin
+env:
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=elgg
 
 script:
-  docker build -t demyx/openlitespeed .
-  #- docker build -t demyx/logrotate .
-  #- sudo docker-slim build --http-probe=false --include-bin=ls --continue-after=1 --include-path=/usr/local/bin --from-dockerfile=Dockerfile --tag=demyx/openlitespeed tag-latest
-  #- docker save demyx/openlitespeed > ols.img
-  #- curl --user "$DEMYX_SECRET_CREDENTIALS" -X PUT -T ols.img "$DEMYX_SECRET_URL"/ols.img
+  - docker build -t demyx/"$DEMYX_REPOSITORY" .
+  - docker-compose up -d
+  - sleep 30
+  - docker logs demyx_elgg
+  - docker ps
+  - docker exec -t demyx_elgg sh -c "php vendor/bin/elgg-cli plugins:list --status all"
