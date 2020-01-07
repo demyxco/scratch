@@ -29,7 +29,7 @@ source="https://openlitespeed.org/packages/openlitespeed-$pkgver.src.tgz
 	"
 builddir="/openlitespeed-$pkgver"
 
-build() {
+#build() {
 	cd "$builddir"
 	./configure \
 		--host=$CHOST \
@@ -47,10 +47,10 @@ build() {
 		--with-brotli=/usr/lib/ \
 		--with-zlib
 	make
-}
+#}
 
 #package() {
-	local file;
+	#local file;
 	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 
@@ -96,8 +96,8 @@ build() {
 	find "$pkgdir"/etc/$pkgname -type f -print0 | xargs -0 chmod -x
 
 	# install binary
-	mv "$pkgdir"/$_pkghome/bin/$_pkgreal \
-		"$pkgdir"/usr/sbin/lshttpd
+	#mv "$pkgdir"/$_pkghome/bin/$_pkgreal \
+	#	"$pkgdir"/usr/sbin/lshttpd
 	ln -sf /usr/sbin/lshttpd \
 		"$pkgdir"/$_pkghome/bin/$pkgname
 
