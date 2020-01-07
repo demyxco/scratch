@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:edge
 
 RUN apk add --no-cache --update --virtual .deps \
     linux-headers openssl-dev geoip-dev expat-dev pcre-dev zlib-dev
