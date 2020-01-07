@@ -11,5 +11,8 @@ COPY --from=demyx_go /usr/local/go /usr/local
 COPY openlitespeed-1.6.5 /openlitespeed
 
 RUN cd openlitespeed; \
-    chmod +x build.sh; \
-    ./build.sh
+    ./configure; \
+    make; \
+    make install
+    #chmod +x build.sh; \
+    #./build.sh
