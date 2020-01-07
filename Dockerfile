@@ -1,18 +1,20 @@
-FROM golang:alpine as demyx_go
 FROM alpine
 
-ENV PATH="$PATH":/usr/local/go/bin
-
 RUN apk add --no-cache --update --virtual .deps \
-    git cmake curl make clang patch expat-dev libtool \
-    build-base autoconf automake libunwind-dev musl-dev libxml2-dev
+    linux-headers openssl-dev geoip-dev expat-dev pcre-dev zlib-dev
+	bsd-compat-headers lua-dev luajit-dev brotli-dev
+    expat geoip libcrypto1.1 libgcc libssl1.1 libstdc++ musl
+    pcre php7-bcmath php7-json php7-litespeed php7-pecl-mcrypt
+    php7-posix php7-session php7-session php7-sockets zlib
+    #git cmake curl make clang patch expat-dev libtool \
+    #build-base autoconf automake libunwind-dev musl-dev libxml2-dev
 
-COPY --from=demyx_go /usr/local/go /usr/local
-COPY openlitespeed-1.6.5 /openlitespeed
+RUN addgroup -S litespeed 2>/dev/null; \
+    adduser -S -D -H -h /var/lib/litespeed -s /sbin/nologin -G litespeed -g litespeed litespeed 2>/dev/null
 
-RUN cd openlitespeed; \
-    ./configure; \
-    make; \
-    make install
-    #chmod +x build.sh; \
-    #./build.sh
+COPY openlitespeed-1.6.5 /
+
+RUN set -ex; \
+    cd openlitespeed-1.6.5; \
+    chmod +x build.sh; \
+    ./build.sh

@@ -52,7 +52,7 @@
 #include <util/httpfetch.h>
 #include <socket/gsockaddr.h>
 
-#include <sys/sysctl.h>
+#include <linux/sysctl.h>
 
 #include <extensions/cgi/cgidworker.h>
 #include <extensions/registry/extappregistry.h>

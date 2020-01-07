@@ -26,11 +26,7 @@ inst_admin_php()
     fi
         
     if [ "x$OS" = "xLinux" ] ; then
-        if [ "x$OSTYPE" != "x64" ] ; then
-            $DLCMD $LSWS_HOME/admin/fcgi-bin/admin_php http://www.litespeedtech.com/packages/lsphp5_bin/i386/lsphp5
-        else
-            $DLCMD $LSWS_HOME/admin/fcgi-bin/admin_php http://www.litespeedtech.com/packages/lsphp5_bin/x86_64/lsphp5
-        fi
+        ln -s /usr/bin/lsphp7 $LSWS_HOME/admin/fcgi-bin/admin_php
         
         if [ $? = 0 ] ; then 
             HASADMINPHP=y

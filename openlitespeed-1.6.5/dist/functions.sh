@@ -399,7 +399,7 @@ EOF
 
 	if [ $INST_USER = "root" ]; then
 		if [ $SUCC -eq "1" ]; then
-			chown -R "$DIR_OWN" "$LSWS_HOME"
+			: #chown -R "$DIR_OWN" "$LSWS_HOME"
 		fi
 	fi
 }
@@ -649,7 +649,7 @@ util_mkdir()
 	  if [ ! -d "$LSWS_HOME/$arg" ]; then
 		  mkdir "$LSWS_HOME/$arg"
 	  fi
-	  chown "$OWNER" "$LSWS_HOME/$arg"
+	  #chown "$OWNER" "$LSWS_HOME/$arg"
 	  chmod $PERM  "$LSWS_HOME/$arg"
 	done
 	
@@ -666,7 +666,7 @@ util_cpfile()
 	  do
 	  if [ -f "$LSINSTALL_DIR/$arg" ]; then 
 	    cp -f "$LSINSTALL_DIR/$arg" "$LSWS_HOME/$arg"
-	    chown "$OWNER" "$LSWS_HOME/$arg"
+	    #chown "$OWNER" "$LSWS_HOME/$arg"
 	    chmod $PERM  "$LSWS_HOME/$arg"
 	  fi
 	done
@@ -685,7 +685,7 @@ util_ccpfile()
 	    cp "$LSINSTALL_DIR/$arg" "$LSWS_HOME/$arg"
 	  fi
 	  if [ -f "$LSWS_HOME/$arg" ]; then
-        chown "$OWNER" "$LSWS_HOME/$arg"
+        #chown "$OWNER" "$LSWS_HOME/$arg"
         chmod $PERM  "$LSWS_HOME/$arg"
       fi
 	done
@@ -701,7 +701,7 @@ util_cpdir()
 	for arg
 	  do
 	  cp -R "$LSINSTALL_DIR/$arg/"* "$LSWS_HOME/$arg/"
-	  chown -R "$OWNER" "$LSWS_HOME/$arg/"*
+	  #chown -R "$OWNER" "$LSWS_HOME/$arg/"*
       #chmod -R $PERM  $LSWS_HOME/$arg/*
 	done
 }
@@ -728,7 +728,7 @@ util_cpdirv()
 	for arg
 	  do
 	  cp -R "$LSINSTALL_DIR/$arg/"* "$LSWS_HOME/$arg.$VERSION/"
-	  chown -R "$OWNER" "$LSWS_HOME/$arg.$VERSION"
+	  #chown -R "$OWNER" "$LSWS_HOME/$arg.$VERSION"
       $TEST_BIN -L "$LSWS_HOME/$arg"
       if [ $? -eq 0 ]; then
 		  rm -f "$LSWS_HOME/$arg"
@@ -750,7 +750,7 @@ util_cpfilev()
 	for arg
 	  do
 	  cp -f "$LSINSTALL_DIR/$arg" "$LSWS_HOME/$arg.$VERSION"
-	  chown "$OWNER" "$LSWS_HOME/$arg.$VERSION"
+	  #chown "$OWNER" "$LSWS_HOME/$arg.$VERSION"
 	  chmod $PERM  "$LSWS_HOME/$arg.$VERSION"
       $TEST_BIN -L "$LSWS_HOME/$arg"
       if [ $? -eq 0 ]; then
@@ -767,11 +767,11 @@ installation1()
     umask 022
 	if [ $INST_USER = "root" ]; then
 		SDIR_OWN="root:$ROOTGROUP"
-        chown $SDIR_OWN $LSWS_HOME
+        #chown $SDIR_OWN $LSWS_HOME
 	else
 		SDIR_OWN=$DIR_OWN
 	fi
-	sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lsws.rc.in" > "$LSINSTALL_DIR/admin/misc/lsws.rc"
+	#sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lsws.rc.in" > "$LSINSTALL_DIR/admin/misc/lsws.rc"
 
 	OWNER=$1
 	PERM=$2
@@ -782,7 +782,7 @@ installation1()
 	  if [ ! -f "$LSWS_HOME/$arg" ]; then
 		  cp "$LSINSTALL_DIR/$arg" "$LSWS_HOME/$arg"
 	  fi
-	  chown "$OWNER" "$LSWS_HOME/$arg"
+	  #chown "$OWNER" "$LSWS_HOME/$arg"
 	  chmod $PERM  "$LSWS_HOME/$arg"
 	done
 }
@@ -797,7 +797,7 @@ util_cpdir()
 	for arg
 	  do
 	  cp -R "$LSINSTALL_DIR/$arg/"* "$LSWS_HOME/$arg/"
-	  chown -R "$OWNER" "$LSWS_HOME/$arg/"*
+	  #chown -R "$OWNER" "$LSWS_HOME/$arg/"*
       #chmod -R $PERM  $LSWS_HOME/$arg/*
 	done
 }
@@ -873,11 +873,11 @@ create_lsadm_freebsd()
 
 create_lsadm()
 {
-    groupadd lsadm 
+    #groupadd lsadm 
     #1>/dev/null 2>&1
     lsadm_gid=`grep "^lsadm:" /etc/group | awk -F : '{ print $3; }'`
-    useradd -g $lsadm_gid -d / -r -s /sbin/nologin lsadm 
-    usermod -a -G $WS_GROUP lsadm
+    #useradd -g $lsadm_gid -d / -r -s /sbin/nologin lsadm 
+    #usermod -a -G $WS_GROUP lsadm
     #1>/dev/null 2>&1
     
 }
@@ -950,13 +950,13 @@ installation()
             CONF_OWN="lsadm:lsadm"
         fi
 		SDIR_OWN="root:$ROOTGROUP"
-        chown $SDIR_OWN $LSWS_HOME
+        #chown $SDIR_OWN $LSWS_HOME
 	else
 		SDIR_OWN=$DIR_OWN
 	fi
-    sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lsws.rc.in" > "$LSINSTALL_DIR/admin/misc/lsws.rc"
-    sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lsws.rc.gentoo.in" > "$LSINSTALL_DIR/admin/misc/lsws.rc.gentoo"
-    sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lshttpd.service.in" > "$LSINSTALL_DIR/admin/misc/lshttpd.service"
+    #sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lsws.rc.in" > "$LSINSTALL_DIR/admin/misc/lsws.rc"
+    #sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lsws.rc.gentoo.in" > "$LSINSTALL_DIR/admin/misc/lsws.rc.gentoo"
+    #sed "s:%LSWS_CTRL%:$LSWS_HOME/bin/lswsctrl:" "$LSINSTALL_DIR/admin/misc/lshttpd.service.in" > "$LSINSTALL_DIR/admin/misc/lshttpd.service"
     if [ -d "$LSWS_HOME/admin/html.$VERSION" ]; then
         rm -rf "$LSWS_HOME/admin/html.$VERSION"
     fi
@@ -965,10 +965,8 @@ installation()
     util_mkdir "$CONF_OWN" $SDIR_MOD conf conf/cert conf/templates conf/vhosts conf/vhosts/Example admin/conf admin/tmp phpbuild
     util_mkdir "$SDIR_OWN" $SDIR_MOD cgid admin/cgid admin/cgid/secret
     util_mkdir "$DIR_OWN" $SDIR_MOD  tmp/ocspcache
-    chgrp  $WS_GROUP $LSWS_HOME/admin/tmp $LSWS_HOME/admin/cgid $LSWS_HOME/cgid
     chmod  g+x $LSWS_HOME/admin/tmp $LSWS_HOME/admin/cgid $LSWS_HOME/cgid
-    chown  $CONF_OWN $LSWS_HOME/admin/tmp/sess_* 1>/dev/null 2>&1
-    chown  $DIR_OWN $LSWS_HOME/cachedata
+    chmod  g+x $LSWS_HOME/admin/tmp $LSWS_HOME/admin/cgid $LSWS_HOME/cgid
     chown  $DIR_OWN $LSWS_HOME/autoupdate
     chown  $DIR_OWN $LSWS_HOME/tmp
     util_mkdir "$SDIR_OWN" $DIR_MOD Example 
@@ -994,8 +992,8 @@ installation()
     util_cpfile "$SDIR_OWN" $EXEC_MOD  fcgi-bin/RailsRunner.rb  fcgi-bin/RailsRunner.rb.2.3
 
     util_cpfile "$SDIR_OWN" $EXEC_MOD  lsrecaptcha/_recaptcha lsrecaptcha/_recaptcha.shtml
-	util_cpfile "$SDIR_OWN" $EXEC_MOD admin/misc/rc-inst.sh admin/misc/admpass.sh admin/misc/rc-uninst.sh admin/misc/uninstall.sh admin/misc/lsws.rc admin/misc/lsws.rc.gentoo admin/misc/enable_phpa.sh admin/misc/mgr_ver.sh admin/misc/gzipStatic.sh admin/misc/fp_install.sh admin/misc/create_admin_keypair.sh admin/misc/awstats_install.sh admin/misc/update.sh admin/misc/cleancache.sh admin/misc/lsup.sh admin/misc/testbeta.sh
-    util_cpfile "$SDIR_OWN" $EXEC_MOD admin/misc/ap_lsws.sh.in admin/misc/build_ap_wrapper.sh admin/misc/cpanel_restart_httpd.in admin/misc/build_admin_php.sh admin/misc/convertxml.sh admin/misc/lscmctl
+	
+	util_cpfile "$SDIR_OWN" $EXEC_MOD admin/misc/ap_lsws.sh.in admin/misc/build_ap_wrapper.sh admin/misc/cpanel_restart_httpd.in admin/misc/build_admin_php.sh admin/misc/convertxml.sh admin/misc/lscmctl
 	util_cpfile "$SDIR_OWN" $DOC_MOD admin/misc/gdb-bt admin/misc/htpasswd.php admin/misc/php.ini admin/misc/genjCryptionKeyPair.php admin/misc/purge_cache_byurl.php
     util_cpfile "$SDIR_OWN" $DOC_MOD admin/misc/convertxml.php  admin/misc/lshttpd.service 
     
@@ -1050,7 +1048,6 @@ installation()
 
 	#change conf own as lsadm:nobody permission 750
     chown -R lsadm:$WS_GROUP "$LSWS_HOME/conf/"
-    chmod -R 0750 "$LSWS_HOME/conf/"
     
     chmod 0600 "$LSWS_HOME/conf/httpd_config.conf"
     chmod 0600 "$LSWS_HOME/conf/vhosts/Example/vhconf.conf"

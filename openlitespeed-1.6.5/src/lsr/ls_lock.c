@@ -124,11 +124,7 @@ int ls_pthread_mutex_setup(pthread_mutex_t *p)
 #else  /* defined(USE_MUTEX_ADAPTIVE) */
     /* pthread_mutexattr_settype(&myAttr, PTHREAD_MUTEX_NORMAL); */
     pthread_mutexattr_settype(&myAttr,
-#if defined(linux) || defined(__linux) || defined(__linux__) || defined(__gnu_linux__)
-                              PTHREAD_MUTEX_ERRORCHECK_NP
-#else  /* defined(linux) */
-                              PTHREAD_MUTEX_ERRORCHECK
-#endif  /* defined(linux) */
+
                              );
 #endif  /* defined(USE_MUTEX_ADAPTIVE) */
     /* pthread_mutexattr_settype(&myAttr, PTHREAD_MUTEX_RECURSIVE); */
