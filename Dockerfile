@@ -8,15 +8,11 @@ RUN apk add --no-cache --update --virtual .deps \
     build-base autoconf automake libunwind-dev musl-dev
 
 COPY --from=demyx_go /usr/local/go /usr/local
-COPY openlitespeed-1.6.5.src.tgz /
+COPY openlitespeed-1.6.5 /openlitespeed
 COPY build.sh /
 
-RUN tar -xzf openlitespeed-1.6.4.src.tgz; \
+RUN ln -s /usr/bin/go /usr/local/go/bin; \
     \
-    mv /build.sh /openlitespeed-1.6.4; \
-    \
-    ln -s /usr/bin/go /usr/local/go/bin; \
-    \
-    cd openlitespeed-1.6.4; \
+    cd openlitespeed; \
     chmod +x build.sh; \
     ./build.sh
