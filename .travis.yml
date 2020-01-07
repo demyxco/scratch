@@ -1,0 +1,13 @@
+# Demyx
+# https://demyx.sh
+
+notifications:
+  email:
+    on_success: never
+    on_failure: never
+
+services:
+  - docker
+
+script:
+  - docker build -t demyx/openlitespeed
