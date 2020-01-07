@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+#set -ex
 ##############################################################################
 #    Open LiteSpeed is an open source HTTP server.                           #
 #    Copyright (C) 2013 - 2019 LiteSpeed Technologies, Inc.                  #
@@ -476,7 +476,6 @@ sed -i -e "s/unittest-cpp/ /g" ./build_ols.sh
 sed -i -e "s/psol/ /g"  ./build_ols.sh
 
 ./build_ols.sh
-
 
 cd ${CURDIR}
 
