@@ -30,6 +30,8 @@ script:
   - sleep 5
   - docker run -dit --name=demyx_nx --network=demyx -v demyx_wp:/demyx -e WORDPRESS=true -e WORDPRESS_CONTAINER=demyx_wp -e WORDPRESS_CONTAINER_PORT=9000 demyx/"$DEMYX_REPOSITORY"
   - sleep 5
-  - docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
+  - docker logs demyx_nx
+  - docker ps -a
+  #- docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
   #- docker run -d --rm --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
   #- docker exec -t "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" -V
