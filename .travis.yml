@@ -26,12 +26,12 @@ script:
   - sleep 5
   - docker run -d --name=demyx_wp --network=demyx -v demyx_wp:/demyx -e WORDPRESS_DB_HOST=demyx_db -e WORDPRESS_DB_NAME=demyx -e WORDPRESS_DB_USER=demyx -e WORDPRESS_DB_PASSWORD=demyx demyx/wordpress
   - sleep 5
-  - docker run --network=demyx --volumes-from=demyx_wp --workdir=/demyx demyx/wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+  - docker run --network=demyx --volumes-from=demyx_wp --workdir=/demyx demyx/wordpress:cli core install --url=http://domain.tld --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
   - sleep 5
-  - docker run -dit --name=demyx_nx --network=demyx -v demyx_wp:/demyx -e WORDPRESS=true -e WORDPRESS_CONTAINER=demyx_wp -e WORDPRESS_CONTAINER_PORT=9000 demyx/"$DEMYX_REPOSITORY"
+  - docker run -dit --name=demyx_nx --network=demyx -v demyx_wp:/demyx -e WORDPRESS=true -e WORDPRESS_CONTAINER=demyx_wp -e WORDPRESS_CONTAINER_PORT=9000 -e NGINX_DOMAIN=domain.tld demyx/"$DEMYX_REPOSITORY"
   - sleep 5
-  - docker logs demyx_nx
-  - docker ps -a
-  #- docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
+  #- docker logs demyx_nx
+  #- docker ps -a
+  - docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
   #- docker run -d --rm --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
   #- docker exec -t "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" -V
