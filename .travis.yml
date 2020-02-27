@@ -17,6 +17,7 @@ before_install:
   - docker pull demyx/mariadb
   - docker pull demyx/wordpress
   - docker pull demyx/wordpress:cli
+  - docker pull demyx/utilities
   - docker network create demyx
 
 script:
@@ -29,6 +30,6 @@ script:
   - sleep 5
   - docker run -d --name=demyx_nx --network=demyx -v demyx_wp:/demyx -e WORDPRESS=true -e WORDPRESS_CONTAINER=demyx_wp -e WORDPRESS_CONTAINER_PORT=9000 demyx/"$DEMYX_REPOSITORY"
   - sleep 5
-  - curl -s http://demyx_nx | grep "Hello world"
+  - docker run -it --network=demyx demyx/utilities curl -s http://demyx_nx | grep "Hello world"
   #- docker run -d --rm --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
   #- docker exec -t "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" -V
