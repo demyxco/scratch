@@ -17,6 +17,7 @@ before_install:
   - docker pull demyx/mariadb
   - docker pull demyx/wordpress
   - docker pull demyx/wordpress:cli
+  - docker network create demyx
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
