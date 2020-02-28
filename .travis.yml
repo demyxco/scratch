@@ -33,5 +33,4 @@ script:
   - docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
 
 after_success:
-  - docker run -d --rm --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
-  - docker exec -t "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" -V
+  - docker exec -t "$DEMYX_REPOSITORY" nginx -V
