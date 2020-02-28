@@ -32,6 +32,8 @@ script:
   - sleep 5
   #- docker logs demyx_nx
   #- docker ps -a
+  - docker logs demyx_nx
+  - sleep 5
   - docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
   #- docker run -d --rm --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
   #- docker exec -t "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" -V
