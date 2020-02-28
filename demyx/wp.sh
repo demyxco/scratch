@@ -19,7 +19,6 @@ else
 fi
 
 # NGINX FastCGI cache
-NGINX_CACHE="${NGINX_CACHE:-false}"
 if [[ "$NGINX_CACHE" = on && "$WORDPRESS" = true || "$NGINX_CACHE" = true && "$WORDPRESS" = true ]]; then
     NGINX_CACHE_HTTP="include "$NGINX_CONFIG"/cache/http.conf;"
     NGINX_CACHE_SERVER="include "$NGINX_CONFIG"/cache/server.conf;"
