@@ -4,7 +4,7 @@
 notifications:
   email:
     on_success: never
-    on_failure: never
+    on_failure: always
 
 services:
   - docker
@@ -30,4 +30,6 @@ script:
   - docker exec --user=root demyx_nx sh -c "apk add curl; curl -s http://localhost | grep 'Hello world'"
 
 after_success:
-  - docker exec -t demyx_nx nginx -V
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
+  - bash travis.sh
