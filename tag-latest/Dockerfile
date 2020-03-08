@@ -77,8 +77,6 @@ RUN set -ex; \
     \
     ln -sf /usr/local/lsws/"$OPENLITESPEED_LSPHP_VERSION"/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp5; \
     \
-    apt-get purge -y wget; \
-    \
     rm -rf /tmp/*
 
 # WordPress
