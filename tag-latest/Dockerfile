@@ -62,8 +62,7 @@ RUN set -ex; \
 ADD https://openlitespeed.org/packages/openlitespeed-"$OPENLITESPEED_VERSION".tgz /tmp
 ADD https://rpms.litespeedtech.com/debian/enable_lst_debian_repo.sh /tmp
 RUN set -ex; \
-    apt-get update && apt-get install -y --no-install-recommends ca-certificates dumb-init ed procps sudo tzdata wget
-    ; \
+    apt-get update && apt-get install -y --no-install-recommends ca-certificates dumb-init ed procps sudo tzdata wget; \
     \
     tar -xzf /tmp/openlitespeed-"$OPENLITESPEED_VERSION".tgz -C /tmp; \
     cd /tmp/openlitespeed && ./install.sh; \
