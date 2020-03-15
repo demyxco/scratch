@@ -6,20 +6,28 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Get versions
-DEMYX_DEBIAN_VERSION="$(docker exec -t demyx_wp cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed 's|"||g' | sed 's/\r//g')"
-DEMYX_OPENLITESPEED_VERSION="$(docker exec -t demyx_wp cat /usr/local/lsws/VERSION | sed -e 's/\r//g')"
-DEMYX_LSPHP_VERSION="$(docker exec -t demyx_wp sh -c '/usr/local/lsws/"$OPENLITESPEED_LSPHP_VERSION"/bin/lsphp -v' | head -1 | awk '{print $2}' | sed 's/\r//g')"
+DEMYX_ALPINE_VERSION=$(docker exec -t "$DEMYX_REPOSITORY" cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
+DEMYX_MARIADB_VERSION=$(docker exec -t "$DEMYX_REPOSITORY" mysql --version | awk -F '[ ]' '{print $6}' | awk -F '[,]' '{print $1}' | sed 's/-MariaDB//g' | sed -e 's/\r//g')
 
 # Replace versions
-sed -i "s|debian-.*.-informational|debian-${DEMYX_DEBIAN_VERSION}-informational|g" README.md
-sed -i "s|${DEMYX_REPOSITORY}-.*.-informational|${DEMYX_REPOSITORY}-${DEMYX_OPENLITESPEED_VERSION}-informational|g" README.md
-sed -i "s|lsphp-.*.-informational|lsphp-${DEMYX_LSPHP_VERSION//-/--}-informational|g" README.md
+sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
+sed -i "s|${DEMYX_REPOSITORY}-.*.-informational|${DEMYX_REPOSITORY}-${DEMYX_MARIADB_VERSION}-informational|g" README.md
+
+# Echo versions to file
+echo "DEMYX_ALPINE_VERSION=$DEMYX_ALPINE_VERSION
+DEMYX_MARIADB_VERSION=$DEMYX_MARIADB_VERSION" > VERSION
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/"$DEMYX_REPOSITORY".git
-git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
+# Commit VERSION first
+git add VERSION
+git commit -m "ALPINE $DEMYX_ALPINE_VERSION, MARIADB $DEMYX_MARIADB_VERSION"
+# Commit the rest
+git add .
+git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"
+git push origin HEAD:master
 
 # Set the default path to README.md
 README_FILEPATH="./README.md"
