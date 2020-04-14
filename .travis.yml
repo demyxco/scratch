@@ -11,18 +11,18 @@ services:
 
 env:
   - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=mariadb
- 
+
 before_install:
   - docker pull alpine
-  - docker pull demyx/mariadb
   - docker pull demyx/nginx
   - docker pull demyx/wordpress
   - docker pull demyx/wordpress:cli
   - docker pull demyx/utilities
   - docker network create demyx
- 
+
 script:
-  - docker run -d --name=demyx_db --network=demyx -e MARIADB_DATABASE=demyx -e MARIADB_USERNAME=demyx -e MARIADB_PASSWORD=demyx -e MARIADB_ROOT_PASSWORD=demyx demyx/"$DEMYX_REPOSITORY"
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker run -d --name="$DEMYX_REPOSITORY" --network=demyx -e MARIADB_DATABASE=demyx -e MARIADB_USERNAME=demyx -e MARIADB_PASSWORD=demyx -e MARIADB_ROOT_PASSWORD=demyx demyx/"$DEMYX_REPOSITORY"
   - docker run -d --name=demyx_wp --network=demyx -v demyx_wp:/demyx -e WORDPRESS_DB_HOST=demyx_db -e WORDPRESS_DB_NAME=demyx -e WORDPRESS_DB_USER=demyx -e WORDPRESS_DB_PASSWORD=demyx demyx/wordpress
   - sleep 5
   - docker run --network=demyx --volumes-from=demyx_wp --workdir=/demyx demyx/wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
