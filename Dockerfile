@@ -1,72 +1,68 @@
-FROM alpine
+FROM tecnativa/docker-socket-proxy
 
-LABEL sh.demyx.image        demyx/mariadb
-LABEL sh.demyx.maintainer   Demyx <info@demyx.sh>
-LABEL sh.demyx.url          https://demyx.sh
-LABEL sh.demyx.github       https://github.com/demyxco
-LABEL sh.demyx.registry     https://hub.docker.com/u/demyx
+LABEL sh.demyx.image 		demyx/docker-socket-proxy
+LABEL sh.demyx.maintainer 	Demyx <info@demyx.sh>
+LABEL sh.demyx.url 			https://demyx.sh
+LABEL sh.demyx.github 		https://github.com/demyxco
+LABEL sh.demyx.registry 	https://hub.docker.com/u/demyx
 
 # Set default variables
-ENV MARIADB_ROOT    /demyx
-ENV MARIADB_CONFIG  /etc/demyx
-ENV MARIADB_LOG     /var/log/demyx
-ENV TZ              America/Los_Angeles
+ENV DOCKER_SOCKET_PROXY_ROOT     	/demyx
+ENV DOCKER_SOCKET_PROXY_CONFIG   	/etc/demyx
+ENV DOCKER_SOCKET_PROXY_LOG      	/var/log/demyx
+ENV TZ                      		America/Los_Angeles
 
 # Configure Demyx
 RUN set -ex; \
     addgroup -g 1000 -S demyx; \
     adduser -u 1000 -D -S -G demyx demyx; \
     \
-    install -d -m 0755 -o demyx -g demyx "$MARIADB_ROOT"; \
-    install -d -m 0755 -o demyx -g demyx "$MARIADB_CONFIG"; \
-    install -d -m 0755 -o demyx -g demyx "$MARIADB_LOG"
+    install -d -m 0755 -o demyx -g demyx "$DOCKER_SOCKET_PROXY_ROOT"; \
+    install -d -m 0755 -o demyx -g demyx "$DOCKER_SOCKET_PROXY_CONFIG"; \
+    install -d -m 0755 -o demyx -g demyx "$DOCKER_SOCKET_PROXY_LOG"
 
-# Packages
+# Main packages
 RUN set -ex; \
-    apk add --no-cache --update bash dumb-init mariadb mariadb-client sudo tzdata
-
-# Copy files
-COPY --chown=demyx:demyx src "$MARIADB_CONFIG"
+	apk --no-cache add dumb-init sudo
 
 # Configure sudo
 RUN set -ex; \
-    echo "demyx ALL=(ALL) NOPASSWD:/etc/demyx/admin.sh" > /etc/sudoers.d/demyx; \
-    \
-    echo 'Defaults env_keep +="MARIADB_ROOT"' >> /etc/sudoers.d/demyx; \
-    echo 'Defaults env_keep +="MARIADB_ROOT_PASSWORD"' >> /etc/sudoers.d/demyx; \
-    echo 'Defaults env_keep +="MARIADB_DATABASE"' >> /etc/sudoers.d/demyx; \
-    echo 'Defaults env_keep +="MARIADB_USERNAME"' >> /etc/sudoers.d/demyx; \
-    echo 'Defaults env_keep +="MARIADB_PASSWORD"' >> /etc/sudoers.d/demyx; \
-    \
-    echo '#!/bin/bash' > /usr/local/bin/demyx-admin; \
-    echo 'sudo /etc/demyx/admin.sh' >> /usr/local/bin/demyx-admin; \
-    chmod +x "$MARIADB_CONFIG"/admin.sh; \
-    chmod +x /usr/local/bin/demyx-admin
+	echo "demyx ALL=(ALL) NOPASSWD: /usr/local/bin/demyx-entrypoint" > /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="AUTH"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="BUILD"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="COMMIT"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="CONFIGS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="CONTAINERS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="DISTRIBUTION"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="EVENTS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="EXEC"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="IMAGES"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="INFO"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="NETWORKS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="NODES"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="PING"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="PLUGINS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="POST"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="SECRETS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="SERVICES"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="SESSION"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="SWARM"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="SYSTEM"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="TASKS"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="VERSION"' >> /etc/sudoers.d/demyx; \
+	echo 'Defaults env_keep +="VOLUMES"' >> /etc/sudoers.d/demyx
 
 # Finalize
 RUN set -ex; \
-    # demyx-config
-    chmod +x "$MARIADB_CONFIG"/config.sh; \
-    mv "$MARIADB_CONFIG"/config.sh /usr/local/bin/demyx-config; \
-    \
-    # demyx-upgrade
-    chmod +x "$MARIADB_CONFIG"/upgrade.sh; \
-    mv "$MARIADB_CONFIG"/upgrade.sh /usr/local/bin/demyx-upgrade; \
-    \
-    # demyx-entrypoint
-    chmod +x "$MARIADB_CONFIG"/entrypoint.sh; \
-    mv "$MARIADB_CONFIG"/entrypoint.sh /usr/local/bin/demyx-entrypoint; \
-    \
-    # Symlink config
-    ln -sf "$MARIADB_CONFIG"/my.cnf /etc/my.cnf; \
-    \
-    # Reset permissions
-    chown -R root:root /usr/local/bin
-
-WORKDIR "$MARIADB_ROOT"
-
-EXPOSE 3306
+	# Lockdown
+	chmod o-x /bin/busybox; \
+	\
+	# Create entrypoint
+	echo "#!/usr/bin/dumb-init /bin/sh" > /usr/local/bin/demyx-entrypoint; \
+	echo "haproxy -W -db -f /usr/local/etc/haproxy/haproxy.cfg" >> /usr/local/bin/demyx-entrypoint; \
+	\
+	chmod +x /usr/local/bin/demyx-entrypoint
 
 USER demyx
 
-ENTRYPOINT ["demyx-entrypoint"]
+ENTRYPOINT ["sudo", "demyx-entrypoint"]
