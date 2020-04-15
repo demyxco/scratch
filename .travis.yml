@@ -4,18 +4,28 @@
 notifications:
   email:
     on_success: never
-    on_failure: never
+    on_failure: always
 
 services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=docker-socket-proxy
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx
 
 before_install:
-  - docker pull tecnativa/docker-socket-proxy
+  - docker pull alpine
+  - docker pull demyx/mariadb
+  - docker pull demyx/wordpress
+  - docker pull demyx/wordpress:cli
+  - docker pull demyx/utilities
+  - docker network create demyx
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-  - docker run -dit --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
-  - docker exec "$DEMYX_REPOSITORY" haproxy -v
+  - docker run -d --name=demyx_db --network=demyx -e MARIADB_DATABASE=demyx -e MARIADB_USERNAME=demyx -e MARIADB_PASSWORD=demyx -e MARIADB_ROOT_PASSWORD=demyx demyx/mariadb
+  - docker run -d --name=demyx_wp --network=demyx -v demyx_wp:/demyx -e WORDPRESS_DB_HOST=demyx_db -e WORDPRESS_DB_NAME=demyx -e WORDPRESS_DB_USER=demyx -e WORDPRESS_DB_PASSWORD=demyx demyx/wordpress
+  - sleep 5
+  - docker run --network=demyx --volumes-from=demyx_wp --workdir=/demyx demyx/wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+  - docker run -dit --name="$DEMYX_REPOSITORY" --network=demyx -v demyx_wp:/demyx -e WORDPRESS=true -e WORDPRESS_CONTAINER=demyx_wp -e WORDPRESS_CONTAINER_PORT=9000 -e NGINX_DOMAIN=localhost demyx/"$DEMYX_REPOSITORY"
+  - sleep 5
+  - docker exec "$DEMYX_REPOSITORY" sh -c "wget -qO- http://localhost | grep 'Hello world'"
