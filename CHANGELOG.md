@@ -1,28 +1,25 @@
 # CHANGELOG
 
-## 2020-04-15
-### Changed
-- Use demyx-entrypoint in sudoers
-- Set log ownership to demyx user
-
-## 2020-04-14
+## 2020-04-13
 ### Added
-- Created src for main files
-- Created src/nginx for misc files
-- Added more fastcgi rules
-- .webp support
-- src/nginx directory for misc files
-- Custom mime.types
+- sudo
+- RUN to configure sudo
+- Created new folder for source files
 ### Changed
-- Modified fastcgi_cache_path params
-- Cache status has been moved to main nginx.conf
-- move bedrock.conf to src/nginx
-- Log format
-- Include homepage url to X-Powered-By
+- Increase max_connections from 100 to 1000
+- Fixed formatting in config.sh
 - Set dumb-init as the shebang in the entrypoint
 - Format LABEL and ENV entries
 - Update finalize RUN commands
-- Update ENTRYPOINT
-- Update sudo environment
+- Update entrypoint
+- Move Updates & Support section to the bottom
+- Add notice in Usage section
+- Travis-CI
+    - Update travis commands
+    - Update version commands
+    - Output versions to a file
+    - Commit version file first before committing the rest
+    - Make mariadb container use repository name
+    - Misc update to version commands
+    - Update WORDPRESS_DB_HOST to repository name
 ### Removed
-- Headers
