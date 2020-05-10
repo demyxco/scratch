@@ -1,6 +1,6 @@
 FROM codercom/code-server:3.2.0 as demyx_cs
 #FROM quay.io/vektorlab/ctop:0.7.1 as demyx_ctop
-FROM docker as demyx_docker
+#FROM docker as demyx_docker
 FROM debian:buster-slim
 
 LABEL sh.demyx.image        demyx/code-server
@@ -80,7 +80,7 @@ RUN set -ex; \
 # Copy binaries
 #COPY --from=demyx_ctop /ctop /usr/local/bin/ctop-bin
 COPY --from=demyx_cs /usr/local/lib/code-server /usr/local/lib/code-server
-COPY --from=demyx_docker /usr/local/bin/docker /usr/local/bin/docker-bin
+#COPY --from=demyx_docker /usr/local/bin/docker /usr/local/bin/docker-bin
 COPY entrypoint.sh /usr/local/bin/demyx-entrypoint
 
 # Configure code-server
