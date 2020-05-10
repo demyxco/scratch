@@ -1,6 +1,6 @@
-FROM codercom/code-server:3.2.0 as demyx_cs
 FROM quay.io/vektorlab/ctop:0.7.1 as demyx_ctop
 FROM docker as demyx_docker
+FROM codercom/code-server:3.2.0 as demyx_cs
 FROM debian:buster-slim
 
 LABEL sh.demyx.image        demyx/code-server
