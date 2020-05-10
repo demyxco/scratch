@@ -1,4 +1,4 @@
-FROM codercom/code-server:3.2.0 AS demyx_cs
+#FROM codercom/code-server:3.2.0 AS demyx_cs
 FROM quay.io/vektorlab/ctop:0.7.1 AS demyx_ctop
 FROM docker AS demyx_docker
 FROM debian:buster-slim
@@ -79,12 +79,17 @@ RUN set -ex; \
 
 # Copy binaries
 COPY --from=demyx_ctop /ctop /usr/local/bin/ctop-bin
-COPY --from=demyx_cs /usr/local/lib/code-server /usr/local/lib/code-server
+#COPY --from=demyx_cs /usr/local/lib/code-server /usr/local/lib/code-server
 COPY --from=demyx_docker /usr/local/bin/docker /usr/local/bin/docker-bin
 COPY entrypoint.sh /usr/local/bin/demyx-entrypoint
 
 # Configure code-server
 RUN set -ex; \
+    CODE_BINARY=$(curl -sL https://api.github.com/repos/cdr/code-server/releases/latest | grep '"name"' | head -n1 | awk -F '[:]' '{print $2}' | sed -e 's/"//g' | sed -e 's/,//g' | sed -e 's/ //g' | sed -e 's/\r//g'); \
+    curl -sL https://github.com/cdr/code-server/releases/download/"$CODE_BINARY"/code-server-"$CODE_BINARY"-linux-x86_64.tar.gz -o /tmp/code-server-"$CODE_BINARY"-linux-x86_64.tar.gz; \
+    tar -xzf /tmp/code-server-"$CODE_BINARY"-linux-x86_64.tar.gz -C /tmp; \
+    mv /tmp/code-server-"$CODE_BINARY"-linux-x86_64 /usr/local/lib/code-server; \
+    \
     # Create code-server directories
     install -d -m 0755 -o demyx -g demyx /home/demyx/.code/extensions; \
     install -d -m 0755 -o demyx -g demyx /home/demyx/.code/data/User; \
