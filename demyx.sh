@@ -4,7 +4,6 @@
 # 
 # demyx <args>
 #
-set -x
 trap 'exit' ERR
 DEMYX_COMMAND="$1"
 DEMYX_TARGET="$2"
