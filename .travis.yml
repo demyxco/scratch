@@ -1,6 +1,3 @@
-# Demyx
-# https://demyx.sh
-
 notifications:
   email:
     on_success: never
@@ -10,22 +7,26 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=code-server
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=demyx DEMYX_VERSION=1.0.0
 
 before_install:
+  - docker pull demyx/docker-compose
+  - docker pull demyx/docker-socket-proxy
+  - docker pull demyx/mariadb
+  - docker pull demyx/nginx
+  - docker pull demyx/traefik
+  - docker pull demyx/utilities
+  - docker pull demyx/wordpress
+  - docker pull demyx/wordpress:cli
   - docker pull alpine
-  - docker pull debian:buster-slim
-  - docker pull php:fpm-buster
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest
-#  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":go tag-go
-#  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp tag-wp
-#  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":sage tag-sage
-#  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":openlitespeed tag-openlitespeed
-#  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":openlitespeed-sage tag-openlitespeed-sage
-  - docker run -dit --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
-  - docker exec "$DEMYX_REPOSITORY" code-server --version
-  #- docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":alpine tag-alpine
-  #- docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp-alpine tag-wp-alpine
-  #- docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":sage-alpine tag-sage-alpine
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - sudo cp host.sh /usr/local/bin/demyx
+  - sudo chmod +x /usr/local/bin/demyx
+  - sudo echo "DEMYX_HOST_INSTALL=false" > /root/.demyx
+  - sudo demyx
+  - sleep 10
+  - sudo demyx run domain.tld
+  - sudo demyx wp domain.tld core is-installed
+  - sudo demyx exec domain.tld nx wget -qO- http://localhost | grep 'Hello world'

@@ -1,123 +1,128 @@
-# code-server
-[![Build Status](https://img.shields.io/travis/demyxco/code-server?style=flat)](https://travis-ci.org/demyxco/code-server)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/code-server?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Alpine](https://img.shields.io/badge/alpine-3.10.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Debian](https://img.shields.io/badge/debian-10.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Go](https://img.shields.io/badge/go-1.14.2-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![code-server](https://img.shields.io/badge/code--server-3.1.0-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
+# demyx 
+[![Build Status](https://img.shields.io/travis/demyxco/demyx?style=flat)](https://travis-ci.org/demyxco/demyx)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/demyx?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![demyx](https://img.shields.io/badge/demyx-1.0.0-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Alpine](https://img.shields.io/badge/alpine-3.11.6-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
+[![Docker Client](https://img.shields.io/badge/docker_client-19.03.8-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/demyx)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 [![Become a Patron!](https://img.shields.io/badge/become%20a%20patron-$5-informational?style=flat&color=blue)](https://www.patreon.com/bePatron?u=23406156)
 
-code-server is VS Code running on a remote server, accessible through the browser.
+Demyx is a Docker image that automates and manages WordPress installations. Traefik for reverse proxy with Lets Encrypt SSL/TLS. WordPress sites are powered by OpenLiteSpeed/NGINX-PHP and MariaDB.
 
-<p align="center" style="max-width: 1024px"><img src="https://i.imgur.com/jBSya1n.png" width="100%"></p>
+<p align="center"><img  src="https://i.imgur.com/kwKTZHE.gif"></p>
 
-DEMYX | CODE-SERVER
---- | ---
-TAGS | latest alpine openlitespeed openlitespeed-sage wp wp-alpine sage sage-alpine
-PORT | 8080
-USER | demyx
-WORKDIR | /demyx
-CONFIG | /etc/demyx
-ENTRYPOINT | ["demyx-entrypoint"]
-SHELL | zsh
-SHELL THEME | Oh My Zsh "ys" 
-
-## Usage
-* SSL/TLS first!
-* Requires no config file for Traefik and is ready to go when running: `docker-compose up -d`
-* Upgrading from Traefik v1 to v2? You will need to convert your [acme.json](https://github.com/containous/traefik-migration-tool)
-
-```
-# Demyx
-# https://demyx.sh
-#
-# Be sure to change all the domain.tld domains and credentials
-#
-version: "3.7"
-services:
-  traefik:
-    image: traefik
-    container_name: demyx_traefik
-    restart: unless-stopped
-    networks:
-      - demyx
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - demyx_traefik:/demyx
-    environment:
-      - TRAEFIK_API=true
-      - TRAEFIK_PROVIDERS_DOCKER=true
-      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
-      - TRAEFIK_ENTRYPOINTS_HTTP_ADDRESS=:80
-      - TRAEFIK_ENTRYPOINTS_HTTPS_ADDRESS=:443
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_EMAIL=info@domain.tld
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_STORAGE=/demyx/acme.json
-      - TRAEFIK_LOG=true
-      - TRAEFIK_LOG_LEVEL=INFO
-      - TRAEFIK_LOG_FILEPATH=/demyx/error.log
-      - TRAEFIK_ACCESSLOG=true
-      - TRAEFIK_ACCESSLOG_FILEPATH=/demyx/access.log
-      - TZ=America/Los_Angeles
-    labels:
-      # traefik https://traefik.domain.tld
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik-http.rule=Host(`traefik.domain.tld`)"
-      - "traefik.http.routers.traefik-http.service=api@internal"
-      - "traefik.http.routers.traefik-http.entrypoints=http"
-      - "traefik.http.routers.traefik-http.middlewares=traefik-redirect"
-      - "traefik.http.middlewares.traefik-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.traefik-https.rule=Host(`traefik.domain.tld`)"
-      - "traefik.http.routers.traefik-https.entrypoints=https"
-      - "traefik.http.routers.traefik-https.service=api@internal"
-      - "traefik.http.routers.traefik-https.middlewares=traefik-auth"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1" # Password: demyx
-      - "traefik.http.routers.traefik-https.tls.certresolver=demyx"
-  demyx_cs:
-    container_name: demyx_cs
-    image: demyx/code-server
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - demyx_cs:/home/demyx
-    environment:
-      - PASSWORD=demyx
-      - TZ=America/Los_Angeles
-    labels:
-      # code-server https://domain.tld
-      - "traefik.enable=true"
-      - "traefik.http.routers.domaintld-http.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-http.entrypoints=http"
-      - "traefik.http.routers.domaintld-https.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-https.entrypoints=https"
-      - "traefik.http.routers.domaintld-http.middlewares=domaintld-redirect"
-      - "traefik.http.middlewares.domaintld-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.domaintld-https.tls.certresolver=demyx"
-volumes:
-  demyx_cs:
-    name: demyx_cs
-  demyx_traefik:
-    name: demyx_traefik
-networks:
-  demyx:
-    name: demyx
-```
-
-## Updates & Support
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Watches](https://img.shields.io/github/watchers/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Stars](https://img.shields.io/github/stars/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Forks](https://img.shields.io/github/forks/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
+### Updates & Support
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Watches](https://img.shields.io/github/watchers/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Stars](https://img.shields.io/github/stars/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
+[![Forks](https://img.shields.io/github/forks/demyxco/demyx?style=flat&color=blue)](https://github.com/demyxco/demyx)
 
 * Auto built weekly on Saturdays (America/Los_Angeles)
 * Rolling release updates
 * For support: [#demyx](https://webchat.freenode.net/?channel=#demyx)
+
+### Features
+* SSL turned on by default
+* Basic auth site-wide or wp-login.php
+* Secure NGINX/PHP configurations
+* Backup/Restore/Clone
+* FastCGI cache with nginx-helper plugin by rtCamp (WooCommerce ready)
+* Auto activate rate requests and limit connections when CPU is high
+* Custom healthchecks
+* Development mode includes the tools code-server, BrowserSync, and demyx_helper plugin
+* [Bedrock](https://roots.io/bedrock/)
+
+### Requirements
+* Docker
+* Dedicated/KVM server with Linux
+* Port 80 and 443 must be open
+* CentOS/Fedora/RHEL requires [selinux-dockersock](https://github.com/dpw/selinux-dockersock) or similar fix
+
+### Tested Distros
+- Alpine 3.10 x64
+- Debian 10 x64
+- Ubuntu 19.10 x64
+- CentOS 7.6 x64 (Probably works on Fedora and RHEL)
+
+### Install
+```
+bash -c "$(curl -sL https://demyx.sh/install)"
+```
+
+### Getting Started
+- [Step-by-Step Guide](https://demyx.sh/docker/how-to-easily-manage-multiple-wordpress-sites-in-docker-using-demyx/)
+
+```
+# Create a WordPress site with cache
+demyx run domain.tld --cache
+
+# Create a WordPress site powered by Bedrock
+demyx run domain.tld --bedrock
+```
+
+### Demyx Image
+Demyx needs access to the docker.sock as a non-root user, which the helper script will set that up for you. Sudo is installed to only allow the demyx user to execute specific scripts as root. The image has /bin/busybox and other binaries locked down. This prevents the non-privelege user to modify the script and do malicious things.
+
+### host.sh
+This is a helper script that gets installed on the host and configuration file is installed at `~/.demyx`. It wraps docker exec commands into the demyx container. It also restarts and removes the main demyx containers. See demyx host help for more info.
+
+demyx host help
+```
+demyx host <args>          Chroot into the demyx container
+           all             Targets both demyx and demyx_socket container, works with remove and restart
+           config           Edit Demyx config on the host (~/.demyx)
+           help            Demyx helper help menu
+           remove|rm       Stops and removes demyx container
+           restart|rs      Stops, removes, and starts demyx container
+           shell           Run commands into demyx container from the host, leave blank to open a shell
+           update          List available updates
+           upgrade         Upgrade the demyx stack
+```
+
+### Commands
+```
+demyx <arg>           Main demyx command
+      backup          Back up an app
+      compose         Accepts all docker-compose arguments
+      config           Modifies an app's configuration
+      cp              Wrapper for docker cp
+      cron            Execute demyx cron
+      edit            Opens nano to edit .env files
+      exec            Accepts all docker exec arguments
+      host            Command only available on the host OS, for more info: demyx host help
+      healthcheck     Checks if WordPress apps are up
+      info            Shows an app's .env and filter output
+      list            List all apps
+      log             Show or follow demyx.log
+      maldet          Linux Malware Detect
+      monitor         For auto scaling purposes
+      motd            Message of the day
+      pull            Pull one or all demyx images from Docker hub
+      refresh         Refresh env and yml files of an app
+      restore         Restore an app
+      rm              Removes an app and its volumes
+      run             Creates a new app
+      update          Update demyx code base
+      util            Generates credentials or access util container
+      wp              Execute wp-cli commands
+```
+
+### Privacy
+I have a telemetry setting that is enabled by default. It sends a curl request to demyx.sh server daily at midnight PST. No data is collected except your server's IP address, which is logged to the web server like any other visitor on a browser. I have this enabled so I can track how many active installs there are of Demyx. The curl request uses a token (generated by OpenSSL with a passphrase) to prevent abuse and duplicate entries. What I intend to do with this data is just show a graph of active Demyx installs, just like WordPress plugin stats. 
+
+If you are uncomfortable with this, then you can turn off telemetry by running the command below OR keep it turned on to show your support!
+
+* [Curl](https://github.com/demyxco/demyx/blob/master/function/cron.sh#L40)
+* [Statistics](https://demyx.sh/statistics/)
+
+```
+# Edit demyx environment variables and set DEMYX_TELEMETRY=false
+demyx host edit
+```
+
+### Resources
+- [ctop](https://ctop.sh) - htop but for containers!
+- [VirtuBox](https://github.com/VirtuBox/ubuntu-nginx-web-server) - Borrowed configs for NGINX and PHP
+- [EasyEngine](https://easyengine.io/) - Using their nginx helper plugin
