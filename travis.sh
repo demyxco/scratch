@@ -10,5 +10,5 @@ IFS=$'\n\t'
 DEMYX_CODE_DEBIAN_VERSION="$(docker exec "$DEMYX_REPOSITORY" cat /etc/debian_version | sed 's/\r//g')"
 DEMYX_CODE_VERSION="$(docker exec "$DEMYX_REPOSITORY" code-server --version | awk -F '[ ]' '{print $1}' | sed 's/\r//g')"
 
-echo $DEMYX_CODE_DEBIAN_VERSION
-echo $DEMYX_CODE_VERSION
+echo "$DEMYX_CODE_DEBIAN_VERSION"
+echo "DEMYX_CODE_VERSION=$DEMYX_CODE_VERSION"
