@@ -24,9 +24,9 @@ script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - sudo cp host.sh /usr/local/bin/demyx
   - sudo chmod +x /usr/local/bin/demyx
-  - sudo echo "DEMYX_HOST_INSTALL=false" > /root/.demyx
+  - sudo echo -e "DEMYX_HOST_DOMAIN=demyx.app\nDEMYX_HOST_EMAIL=info@demyx.app\nDEMYX_HOST_AUTH_USERNAME=travis\nDEMYX_HOST_IP=127.0.0.1\nDEMYX_HOST_INSTALL=false" > /root/.demyx
   - sudo demyx
   - sleep 10
-  - sudo demyx run domain.tld
-  - sudo demyx wp domain.tld core is-installed
-  - sudo demyx exec domain.tld nx wget -qO- http://localhost | grep 'Hello world'
+  - sudo demyx run demyx.app
+  - sudo demyx wp demyx.app core is-installed
+  - sudo demyx exec demyx.app nx wget -qO- http://localhost | grep 'Hello world'
