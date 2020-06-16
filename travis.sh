@@ -2,7 +2,7 @@
 # Demyx
 # https://demyx.sh
 # https://github.com/peter-evans/dockerhub-description/blob/master/entrypoint.sh
-set -euox pipefail
+set -euo pipefail
 IFS=$'\n\t'
 
 # Get versions
