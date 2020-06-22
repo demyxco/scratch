@@ -26,7 +26,6 @@ script:
   - sudo cp host.sh /usr/local/bin/demyx
   - sudo chmod +x /usr/local/bin/demyx
   - echo -e "DEMYX_HOST_DOMAIN=demyx.app\nDEMYX_HOST_EMAIL=info@demyx.app\nDEMYX_HOST_AUTH_USERNAME=travis\nDEMYX_HOST_IP=127.0.0.1\nDEMYX_HOST_INSTALL=false" > "$HOME"/.demyx
-  - demyx help
   - demyx run demyx.app
   - demyx wp demyx.app core is-installed
   - demyx exec demyx.app nx wget -qO- http://localhost | grep 'Hello world'
