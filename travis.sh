@@ -1,28 +1,34 @@
 #!/bin/bash
+# Demyx
+# https://demyx.sh
 # https://github.com/peter-evans/dockerhub-description/blob/master/entrypoint.sh
 set -euo pipefail
 IFS=$'\n\t'
 
 # Get versions
-DEMYX_ALPINE_VERSION="$(docker exec -t demyx cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')"
-DEMYX_DOCKER_VERSION="$(curl -sL https://api.github.com/repos/docker/docker-ce/releases/latest | grep '"name":' | awk -F '[:]' '{print $2}' | sed 's/"//g' | sed 's/,//g' | sed 's/ //g' | sed -e 's/\r//g')"
+DEMYX_OPENLITESPEED_DEBIAN_VERSION="$(docker exec -t demyx_wp cat /etc/debian_version | sed -e 's/\r//g')"
+DEMYX_OPENLITESPEED_VERSION="$(docker exec -t demyx_wp cat /usr/local/lsws/VERSION | sed -e 's/\r//g')"
+DEMYX_OPENLITESPEED_LSPHP_VERSION="$(docker exec -t demyx_wp sh -c '/usr/local/lsws/"$OPENLITESPEED_LSPHP_VERSION"/bin/lsphp -v' | head -1 | awk '{print $2}' | sed 's/\r//g')"
 
 # Replace versions
-sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
-sed -i "s|docker_client-.*.-informational|docker_client-${DEMYX_DOCKER_VERSION}-informational|g" README.md
+sed -i "s|debian-.*.-informational|debian-${DEMYX_OPENLITESPEED_DEBIAN_VERSION}-informational|g" README.md
+sed -i "s|${DEMYX_REPOSITORY}-.*.-informational|${DEMYX_REPOSITORY}-${DEMYX_OPENLITESPEED_VERSION}-informational|g" README.md
+sed -i "s|lsphp-.*.-informational|lsphp-${DEMYX_OPENLITESPEED_LSPHP_VERSION//-/--}-informational|g" README.md
 
-# Echo version to file
-echo "DEMYX_VERSION=$DEMYX_VERSION" > VERSION
+# Echo versions to file
+echo "DEMYX_OPENLITESPEED_DEBIAN_VERSION=$DEMYX_OPENLITESPEED_DEBIAN_VERSION
+DEMYX_OPENLITESPEED_VERSION=$DEMYX_OPENLITESPEED_VERSION
+DEMYX_OPENLITESPEED_LSPHP_VERSION=$DEMYX_OPENLITESPEED_LSPHP_VERSION" > VERSION
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git remote set-url origin https://${DEMYX_GITHUB_TOKEN}@github.com/demyxco/"$DEMYX_REPOSITORY".git
-# Push VERSION file first
+# Commit VERSION first
 git add VERSION
-git commit -m "DEMYX $DEMYX_VERSION, ALPINE $DEMYX_ALPINE_VERSION, DOCKER $DEMYX_DOCKER_VERSION"
+git commit -m "DEBIAN $DEMYX_OPENLITESPEED_DEBIAN_VERSION, OPENLITESPEED $DEMYX_OPENLITESPEED_VERSION, LSPHP $DEMYX_OPENLITESPEED_LSPHP_VERSION"
 git push origin HEAD:master
-# Add and commit the rest
+# Commit the rest
 git add .
 git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"
 git push origin HEAD:master

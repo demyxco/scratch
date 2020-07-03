@@ -1,3 +1,6 @@
+# Demyx
+# https://demyx.sh
+
 notifications:
   email:
     on_success: never
@@ -7,26 +10,29 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=demyx DEMYX_VERSION=1.1.0
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=openlitespeed
 
 before_install:
-  - docker pull demyx/docker-compose
-  - docker pull demyx/docker-socket-proxy
+  - docker pull debian:buster-slim
   - docker pull demyx/mariadb
-  - docker pull demyx/nginx
-  - docker pull demyx/traefik
-  - docker pull demyx/utilities
-  - docker pull demyx/wordpress
   - docker pull demyx/wordpress:cli
-  - docker pull alpine
+  - docker pull demyx/utilities
+  - docker network create demyx
 
 script:
-  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-  - docker build -t demyx/"$DEMYX_REPOSITORY":"$DEMYX_VERSION" .
-  - sudo cp host.sh /usr/local/bin/demyx
-  - sudo chmod +x /usr/local/bin/demyx
-  - echo -e "DEMYX_HOST_DOMAIN=demyx.app\nDEMYX_HOST_EMAIL=info@demyx.app\nDEMYX_HOST_AUTH_USERNAME=travis\nDEMYX_HOST_IP=127.0.0.1\nDEMYX_HOST_INSTALL=false" > "$HOME"/.demyx
-  - demyx run demyx.app
-  - demyx wp demyx.app core is-installed
-  - demyx exec demyx.app nx wget -qO- http://localhost | grep 'Hello world'
-  - demyx motd
+  # tag-latest test
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest
+  - docker run -d --name=demyx_db --network=demyx -e MARIADB_DATABASE=demyx -e MARIADB_USERNAME=demyx -e MARIADB_PASSWORD=demyx -e MARIADB_ROOT_PASSWORD=demyx demyx/mariadb
+  - docker run -d --name=demyx_wp --network=demyx -v demyx_wp:/demyx -e WORDPRESS_DB_HOST=demyx_db -e WORDPRESS_DB_NAME=demyx -e WORDPRESS_DB_USER=demyx -e WORDPRESS_DB_PASSWORD=demyx demyx/"$DEMYX_REPOSITORY"
+  - sleep 5
+  - docker run --network=demyx --volumes-from=demyx_wp --workdir=/demyx demyx/wordpress:cli config create --dbhost=demyx_db --dbname=demyx --dbuser=demyx --dbpass=demyx
+  - docker run --network=demyx --volumes-from=demyx_wp --workdir=/demyx demyx/wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+  - docker exec demyx_wp sh -c "wget -qO- http://localhost | grep 'Hello world'"
+  # tag-bedrock test
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":bedrock tag-bedrock
+  - docker run -d --name=demyx_db_bedrock --network=demyx -e MARIADB_DATABASE=demyx -e MARIADB_USERNAME=demyx -e MARIADB_PASSWORD=demyx -e MARIADB_ROOT_PASSWORD=demyx demyx/mariadb
+  - docker run -d --name=demyx_wp_bedrock --network=demyx -v demyx_wp_bedrock:/demyx -e WORDPRESS_DB_HOST=demyx_db_bedrock -e WORDPRESS_DB_NAME=demyx -e WORDPRESS_DB_USER=demyx -e WORDPRESS_DB_PASSWORD=demyx demyx/"$DEMYX_REPOSITORY":bedrock
+  - sleep 5
+  - docker run --network=demyx --volumes-from=demyx_wp_bedrock --workdir=/demyx demyx/wordpress:cli config create --dbhost=demyx_db_bedrock --dbname=demyx --dbuser=demyx --dbpass=demyx
+  - docker run --network=demyx -v demyx_wp_bedrock:/demyx demyx/wordpress:cli core install --url=http://localhost --title=demyx --admin_user=demyx --admin_password=demyx --admin_email=info@domain.tld --skip-email
+  - docker exec demyx_wp_bedrock sh -c "wget -qO- http://localhost | grep 'Hello world'"
