@@ -1,6 +1,6 @@
 #!/bin/bash
 # https://github.com/peter-evans/dockerhub-description/blob/master/entrypoint.sh
-set -euo pipefail
+set -euox pipefail
 IFS=$'\n\t'
 
 # Get versions
