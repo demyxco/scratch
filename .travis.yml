@@ -21,3 +21,4 @@ script:
   - which git
   - which curl
   - which jq
+  - which awk
