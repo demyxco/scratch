@@ -13,14 +13,15 @@ env:
   - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
 
 before_install:
-  - docker pull traefik
+  - docker pull alpine
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-  - docker run -dit --name="$DEMYX_REPOSITORY" -e DEMYX_ACME_EMAIL=info@domain.tld demyx/"$DEMYX_REPOSITORY"
-  - docker exec "$DEMYX_REPOSITORY" traefik version
+  - docker run -dit --name="$DEMYX_REPOSITORY" --entrypoint=sh demyx/"$DEMYX_REPOSITORY"
+  - docker exec "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" --version
 
 after_success:
-  #- echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
-  #- docker push demyx/"$DEMYX_REPOSITORY"
+  - echo "$DEMYX_PASSWORD" | docker login -u "$DEMYX_USERNAME" --password-stdin
+  - docker push demyx/"$DEMYX_REPOSITORY"
+  - which docker
   - bash travis.sh

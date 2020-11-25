@@ -1,26 +1,22 @@
 # CHANGELOG
 
-## 2020-07-13
+## 2020-11-22
 ### Changed
-- The entrypoint is now a Golang binary
-- DEMYX_ACME_EMAIL must be set or the container will exit
+- Rename variables and support old ones
+- Use full paths to binaries/scripts
 
-## 2020-05-31
+## 2020-05-30
 ### Changed
-- Enable dashboard
+- Install docker-compose from package manager
 
-## 2020-05-16
+## 2020-04-13
+### Added
 ### Changed
-- Add null as default value for temporary environment variable or else container will fail
-
-## 2020-05-13
-### Changed
-- Renamed environment variables
-- Use a YAML file to configure Traefik
-
-## 2020-04-14
-### Changed
-- Set dumb-init as the shebang in the entrypoint
 - Format LABEL and ENV entries
-- Divide RUN commands to configure demyx and package installs
-- Update finalize RUN commands
+- Use double hyphens for docker-compose badge
+- Travis-CI
+    - Output version in a file
+    - Commit version file first before committing the rest
+    - Run container in the background
+    - Update version commands
+### Removed
