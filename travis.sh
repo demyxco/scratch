@@ -5,7 +5,7 @@
 
 # Get versions
 DEMYX_DOCKER_COMPOSE_ALPINE_VERSION=$(docker exec "$DEMYX_REPOSITORY" cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed -e 's/\r//g')
-DEMYX_DOCKER_COMPOSE_VERSION=$(docker exec "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" --version | awk -F '[ ]' '{print $3}' | cut -c -6 | sed -e 's/\r//g')
+DEMYX_DOCKER_COMPOSE_VERSION=$(docker exec "$DEMYX_REPOSITORY" docker-compose --version | awk -F '[ ]' '{print $3}' | cut -c -6 | sed -e 's/\r//g')
 
 # Replace versions
 sed -i "s|alpine-.*.-informational|alpine-${DEMYX_DOCKER_COMPOSE_ALPINE_VERSION}-informational|g" README.md
