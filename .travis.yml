@@ -10,37 +10,13 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=code-server
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=eternal-terminal
 
 before_install:
-  - /usr/bin/docker pull alpine
-  - /usr/bin/docker pull debian:buster-slim
-  - /usr/bin/docker pull php:fpm-buster
+  - docker pull alpine
 
 script:
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" tag-latest
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":browse tag-browse
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":go tag-go
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp tag-wp
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":sage tag-sage
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":openlitespeed tag-openlitespeed
-  - /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":openlitespeed-sage tag-openlitespeed-sage
-  - /usr/bin/docker run -dit --name="$DEMYX_REPOSITORY" demyx/"$DEMYX_REPOSITORY"
-  - /usr/bin/docker exec "$DEMYX_REPOSITORY" /usr/local/bin/code-server --version
-  #- /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":alpine tag-alpine
-  #- /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":wp-alpine tag-wp-alpine
-  #- /usr/bin/docker build --no-cache -t demyx/"$DEMYX_REPOSITORY":sage-alpine tag-sage-alpine
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker run -d --rm --name et demyx/"$DEMYX_REPOSITORY"
+  - docker exec -t et etserver --version
 
-after_success:
-  - /bin/echo "$DEMYX_PASSWORD" | /usr/bin/docker login -u "$DEMYX_USERNAME" --password-stdin
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY"
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":browse
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":go
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":wp
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":sage
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":openlitespeed
-  - /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":openlitespeed-sage
-  #- /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":alpine
-  #- /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":wp-alpine
-  #- /usr/bin/docker push demyx/"$DEMYX_REPOSITORY":sage-alpine
-  - /bin/bash travis.sh
