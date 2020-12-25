@@ -60,7 +60,6 @@ RUN set -ex; \
     sed -i '/#include "ust.hpp"/d' "$DEMYX_CONFIG"/EternalTerminal/src/base/Headers.hpp; \
     sed -i 's/<< "Stack Trace: " << endl << ust::generate()//g' "$DEMYX_CONFIG"/EternalTerminal/src/base/Headers.hpp; \
     sed -i 's/NULL))/(char *)0))/g' "$DEMYX_CONFIG"/EternalTerminal/src/terminal/PsuedoUserTerminal.hpp; \
-    sed -i 's/NULL)/(char*)NULL)/g' "$DEMYX_CONFIG"/EternalTerminal/src/htm/TerminalHandler.cpp; \
     \
     # Build
     cd "$DEMYX_CONFIG"/EternalTerminal; \
