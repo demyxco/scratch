@@ -4,7 +4,7 @@
 notifications:
   email:
     on_success: never
-    on_failure: always
+    on_failure: never
 
 services:
   - docker
@@ -19,4 +19,3 @@ script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker run -d --rm --name et demyx/"$DEMYX_REPOSITORY"
   - docker exec -t et etserver --version
-
