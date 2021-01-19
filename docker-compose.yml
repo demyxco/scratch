@@ -1,0 +1,99 @@
+# Demyx
+# https://demyx.sh
+#
+# This docker-compose.yml is designed for VPS use with SSL/TLS first.
+# Traefik requires no additional configurations and is ready to go.
+# Be sure to change all the domain.tld domains and credentials before running docker-compose up -d.
+#
+networks:
+  demyx:
+    name: demyx
+  demyx_socket:
+    name: demyx_socket
+services:
+  demyx_socket:
+    container_name: demyx_socket
+    environment:
+      - CONTAINERS=1
+    image: demyx/docker-socket-proxy
+    networks:
+      - demyx_socket
+    # Uncomment below if your host OS is CentOS/RHEL/Fedora
+    #privileged: true
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  demyx_traefik:
+    container_name: demyx_traefik
+    depends_on:
+      - demyx_socket
+    environment:
+      # Uncomment below for Cloudflare DNS challenge
+      #- CF_API_EMAIL=info@domain.tld
+      #- CF_API_KEY=123456
+      - DEMYX_ACME_EMAIL=info@domain.tld
+      - DEMYX_TRAEFIK_LOG=INFO
+      - TRAEFIK_PROVIDERS_DOCKER_ENDPOINT=tcp://demyx_socket:2375
+    image: demyx/traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.demyx-traefik-auth.basicauth.users=demyx:$$apr1$$L91z3CIR$$m/BKZcnQGBP.Uo2cJm8I0/" # Basic auth password: demyx
+      - "traefik.http.middlewares.demyx-traefik-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.demyx-traefik-http.entrypoints=http"
+      - "traefik.http.routers.demyx-traefik-http.middlewares=demyx-traefik-redirect"
+      - "traefik.http.routers.demyx-traefik-http.rule=Host(`traefik.domain.tld`)"
+      - "traefik.http.routers.demyx-traefik-http.service=demyx-traefik-http-port"
+      - "traefik.http.routers.demyx-traefik-https.entrypoints=https"
+      - "traefik.http.routers.demyx-traefik-https.middlewares=demyx-traefik-auth"
+      - "traefik.http.routers.demyx-traefik-https.rule=Host(`traefik.domain.tld`)" # Traefik dashboard https://traefik.domain.tld
+      - "traefik.http.routers.demyx-traefik-https.service=api@internal"
+      - "traefik.http.routers.demyx-traefik-https.service=demyx-traefik-https-port"
+      - "traefik.http.routers.demyx-traefik-https.tls.certresolver=demyx"
+      - "traefik.http.services.demyx-traefik-http-port.loadbalancer.server.port=8080"
+      - "traefik.http.services.demyx-traefik-https-port.loadbalancer.server.port=8080"
+    networks:
+      - demyx
+      - demyx_socket
+    ports:
+      - 80:8081
+      - 443:8082
+    restart: unless-stopped
+    volumes:
+      - demyx_log:/var/log/demyx
+      - demyx_traefik:/demyx
+  demyx_code:
+    container_name: demyx_code
+    depends_on:
+      - demyx_db
+    environment:
+      - DEMYX=/demyx
+      - DEMYX_CODE_AUTH=password
+      - DEMYX_CODE_BIND_ADDR=0.0.0.0:8080
+      - DEMYX_CODE_CONFIG=/home/demyx/.config/code-server
+      - DEMYX_CODE_PASSWORD=demyx
+      - DEMYX_CONFIG=/etc/demyx
+      - DEMYX_LOG=/var/log/demyx
+      - TZ=America/Los_Angeles
+    hostname: demyx-code
+    image: demyx/code-server
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.demyx-wp.entrypoints=https"
+      - "traefik.http.routers.demyx-wp.priority=99"
+      - "traefik.http.routers.demyx-wp.rule=Host(`domain.tld`)" 
+      - "traefik.http.routers.demyx-wp.service=demyx-wp-port"
+      - "traefik.http.routers.demyx-wp.tls.certresolver=demyx"
+      - "traefik.http.services.demyx-wp-port.loadbalancer.server.port=8080"
+    networks:
+      - demyx
+    restart: unless-stopped
+    volumes:
+      - demyx_code:/home/demyx
+      - demyx_log:/var/log/demyx
+      - demyx_wp:/demyx
+version: "2.4"
+volumes:
+  demyx_code:
+    name: demyx_code
+  demyx_traefik:
+    name: demyx_traefik
