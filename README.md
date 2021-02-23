@@ -1,122 +1,77 @@
-# code-server
-[![Build Status](https://img.shields.io/travis/demyxco/code-server?style=flat)](https://travis-ci.org/demyxco/code-server)
-[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/code-server?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Alpine](https://img.shields.io/badge/alpine-3.10.3-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Debian](https://img.shields.io/badge/debian-10.4-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![Go](https://img.shields.io/badge/go-1.14.6-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
-[![code-server](https://img.shields.io/badge/code--server-3.4.1-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/code-server)
+# docker-socket-proxy
+[![Build Status](https://img.shields.io/travis/demyxco/docker-socket-proxy?style=flat)](https://travis-ci.org/demyxco/docker-socket-proxy)
+[![Docker Pulls](https://img.shields.io/docker/pulls/demyx/docker-socket-proxy?style=flat&color=blue)](https://hub.docker.com/r/demyx/docker-socket-proxy)
+[![Architecture](https://img.shields.io/badge/linux-amd64-important?style=flat&color=blue)](https://hub.docker.com/r/demyx/docker-socket-proxy)
+[![Alpine](https://img.shields.io/badge/alpine--informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/docker-socket-proxy)
+[![HAProxy](https://img.shields.io/badge/haproxy-1.9.13-informational?style=flat&color=blue)](https://hub.docker.com/r/demyx/docker-socket-proxy)
 [![Buy Me A Coffee](https://img.shields.io/badge/buy_me_coffee-$5-informational?style=flat&color=blue)](https://www.buymeacoffee.com/VXqkQK5tb)
 [![Become a Patron!](https://img.shields.io/badge/become%20a%20patron-$5-informational?style=flat&color=blue)](https://www.patreon.com/bePatron?u=23406156)
 
-code-server is VS Code running on a remote server, accessible through the browser.
+Docker image running Alpine Linux and modified version of [Tecnativa/docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy).
 
-<p align="center" style="max-width: 1024px"><img src="screenshot.png" width="100%"></p>
-
-DEMYX | CODE-SERVER
+DEMYX | DOCKER-SOCKET-PROXY
 --- | ---
-TAGS | bedrock browse go latest alpine openlitespeed openlitespeed-bedrock wp
-PORT | 8080
 USER | demyx
-WORKDIR | /demyx
-CONFIG | /etc/demyx
-ENTRYPOINT | ["demyx-entrypoint"]
-SHELL | zsh
-SHELL THEME | Oh My Zsh "ys" 
+PORT | 2375
+ENTRYPOINT | sudo -E demyx-entrypoint
 
 ## Usage
-* SSL/TLS first!
-* Requires no config file for Traefik and is ready to go when running: `docker-compose up -d`
-* Upgrading from Traefik v1 to v2? You will need to convert your [acme.json](https://github.com/containous/traefik-migration-tool)
 
+*Notice: this example only shows you what would happen without passing any permissions via environment variables. To see all available permissions, please click the link below at the end of the examples.*
+
+Run the API proxy (--privileged flag is required here because it connects with the docker socket, which is a privileged connection in some SELinux/AppArmor contexts and would get locked otherwise):
 ```
-# Demyx
-# https://demyx.sh
-#
-# Be sure to change all the domain.tld domains and credentials
-#
-version: "3.7"
-services:
-  traefik:
-    image: traefik
-    container_name: demyx_traefik
-    restart: unless-stopped
-    networks:
-      - demyx
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - demyx_traefik:/demyx
-    environment:
-      - TRAEFIK_API=true
-      - TRAEFIK_PROVIDERS_DOCKER=true
-      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
-      - TRAEFIK_ENTRYPOINTS_HTTP_ADDRESS=:80
-      - TRAEFIK_ENTRYPOINTS_HTTPS_ADDRESS=:443
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE=true
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_HTTPCHALLENGE_ENTRYPOINT=http
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_EMAIL=info@domain.tld
-      - TRAEFIK_CERTIFICATESRESOLVERS_DEMYX_ACME_STORAGE=/demyx/acme.json
-      - TRAEFIK_LOG=true
-      - TRAEFIK_LOG_LEVEL=INFO
-      - TRAEFIK_LOG_FILEPATH=/demyx/error.log
-      - TRAEFIK_ACCESSLOG=true
-      - TRAEFIK_ACCESSLOG_FILEPATH=/demyx/access.log
-      - TZ=America/Los_Angeles
-    labels:
-      # traefik https://traefik.domain.tld
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik-http.rule=Host(`traefik.domain.tld`)"
-      - "traefik.http.routers.traefik-http.service=api@internal"
-      - "traefik.http.routers.traefik-http.entrypoints=http"
-      - "traefik.http.routers.traefik-http.middlewares=traefik-redirect"
-      - "traefik.http.middlewares.traefik-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.traefik-https.rule=Host(`traefik.domain.tld`)"
-      - "traefik.http.routers.traefik-https.entrypoints=https"
-      - "traefik.http.routers.traefik-https.service=api@internal"
-      - "traefik.http.routers.traefik-https.middlewares=traefik-auth"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=demyx:$$apr1$$EqJj89Yw$$WLsBIjCILtBGjHppQ76YT1" # Password: demyx
-      - "traefik.http.routers.traefik-https.tls.certresolver=demyx"
-  demyx_cs:
-    container_name: demyx_cs
-    image: demyx/code-server
-    restart: unless-stopped
-    networks:
-      - demyx
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - demyx_cs:/home/demyx
-    environment:
-      - PASSWORD=demyx
-      - TZ=America/Los_Angeles
-    labels:
-      # code-server https://domain.tld
-      - "traefik.enable=true"
-      - "traefik.http.routers.domaintld-http.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-http.entrypoints=http"
-      - "traefik.http.routers.domaintld-https.rule=Host(`domain.tld`) || Host(`www.domain.tld`)"
-      - "traefik.http.routers.domaintld-https.entrypoints=https"
-      - "traefik.http.routers.domaintld-http.middlewares=domaintld-redirect"
-      - "traefik.http.middlewares.domaintld-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.domaintld-https.tls.certresolver=demyx"
-volumes:
-  demyx_cs:
-    name: demyx_cs
-  demyx_traefik:
-    name: demyx_traefik
-networks:
-  demyx:
-    name: demyx
+$ docker run \
+    -d --privileged \
+    --name=demyx_proxy \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -p 127.0.0.1:2375:2375 \
+    demyx/docker-socket-proxy
 ```
+
+Connect your local docker client to that socket:
+```
+$ export DOCKER_HOST=tcp://demyx_socket:2375
+```
+
+You can see the docker version:
+```
+$ docker version
+Client:
+ Version:      17.03.1-ce
+ API version:  1.27
+ Go version:   go1.7.5
+ Git commit:   c6d412e
+ Built:        Mon Mar 27 17:14:43 2017
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      17.03.1-ce
+ API version:  1.27 (minimum version 1.12)
+ Go version:   go1.7.5
+ Git commit:   c6d412e
+ Built:        Mon Mar 27 17:14:43 2017
+ OS/Arch:      linux/amd64
+ Experimental: false
+```
+
+You cannot see running containers:
+```
+$ docker container ls
+Error response from daemon: <html><body><h1>403 Forbidden</h1>
+Request forbidden by administrative rules.
+</body></html>
+The same will happen to any containers that use this proxy's 2375 port to access the Docker socket API.
+```
+
+For more details: [Tecnativa/docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy)
 
 ## Updates & Support
-[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Repository Size](https://img.shields.io/github/repo-size/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Watches](https://img.shields.io/github/watchers/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Stars](https://img.shields.io/github/stars/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
-[![Forks](https://img.shields.io/github/forks/demyxco/code-server?style=flat&color=blue)](https://github.com/demyxco/code-server)
+[![Code Size](https://img.shields.io/github/languages/code-size/demyxco/docker-socket-proxy?style=flat&color=blue)](https://github.com/demyxco/docker-socket-proxy)
+[![Repository Size](https://img.shields.io/github/repo-size/demyxco/docker-socket-proxy?style=flat&color=blue)](https://github.com/demyxco/docker-socket-proxy)
+[![Watches](https://img.shields.io/github/watchers/demyxco/docker-socket-proxy?style=flat&color=blue)](https://github.com/demyxco/docker-socket-proxy)
+[![Stars](https://img.shields.io/github/stars/demyxco/docker-socket-proxy?style=flat&color=blue)](https://github.com/demyxco/docker-socket-proxy)
+[![Forks](https://img.shields.io/github/forks/demyxco/docker-socket-proxy?style=flat&color=blue)](https://github.com/demyxco/docker-socket-proxy)
 
 * Auto built weekly on Saturdays (America/Los_Angeles)
 * Rolling release updates
