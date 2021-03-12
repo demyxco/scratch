@@ -53,7 +53,7 @@ RUN set -ex; \
         make \
         perl \
         protobuf-dev \
-        samurai \
+        ninja \
         tar \
         unzip \
         zip; \
