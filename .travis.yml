@@ -10,12 +10,13 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=scratch
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=traefik
 
 before_install:
-  - docker pull alpine
+  - docker pull golang:alpine
+  - docker pull traefik
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
-  - docker run -d --rm --name et demyx/"$DEMYX_REPOSITORY"
-  - docker exec -t et etserver --version
+  - docker run -dit --name="$DEMYX_REPOSITORY" -e DEMYX_ACME_EMAIL=info@domain.tld demyx/"$DEMYX_REPOSITORY"
+  - docker exec "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" version

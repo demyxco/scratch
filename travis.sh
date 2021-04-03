@@ -3,20 +3,29 @@
 # https://demyx.sh
 
 # Get versions
-DEMYX_ALPINE_VERSION=$(docker exec -t et cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed 's/\r//g')
-DEMYX_OPENSSH_VERSION=$(docker exec -t et ssh -V | awk -F '[,]' '{print $1}' | cut -c 9- | sed 's/\r//g')
-DEMYX_ET_VERSION=$(docker exec -t et etserver --version | awk -F '[ ]' '{print $3}' | sed 's/\r//g')
+DEMYX_TRAEFIK_ALPINE_VERSION="$(docker exec --user=root "$DEMYX_REPOSITORY" cat /etc/os-release | grep VERSION_ID | cut -c 12- | sed 's/\r//g')"
+DEMYX_TRAEFIK_VERSION="$(docker exec "$DEMYX_REPOSITORY" "$DEMYX_REPOSITORY" version | sed -n 1p | awk '{print $2}' | sed 's/\r//g')"
 
 # Replace versions
-sed -i "s|alpine-.*.-informational|alpine-${DEMYX_ALPINE_VERSION}-informational|g" README.md
-sed -i "s|openssh-.*.-informational|openssh-${DEMYX_OPENSSH_VERSION}-informational|g" README.md
-sed -i "s|et-.*.-informational|et-${DEMYX_ET_VERSION}-informational|g" README.md
+sed -i "s|alpine-.*.-informational|alpine-${DEMYX_TRAEFIK_ALPINE_VERSION}-informational|g" README.md
+sed -i "s|${DEMYX_REPOSITORY}-.*.-informational|${DEMYX_REPOSITORY}-${DEMYX_TRAEFIK_VERSION}-informational|g" README.md
+
+# Echo versions to file
+echo "DEMYX_TRAEFIK_ALPINE_VERSION=$DEMYX_TRAEFIK_ALPINE_VERSION
+DEMYX_TRAEFIK_VERSION=$DEMYX_TRAEFIK_VERSION" > VERSION
 
 # Push back to GitHub
 git config --global user.email "travis@travis-ci.com"
 git config --global user.name "Travis CI"
 git remote set-url origin https://"$DEMYX_GITHUB_TOKEN"@github.com/demyxco/"$DEMYX_REPOSITORY".git
-git add .; git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"; git push origin HEAD:master
+# Commit VERSION first
+git add VERSION
+git commit -m "ALPINE $DEMYX_TRAEFIK_ALPINE_VERSION, TRAEFIK $DEMYX_TRAEFIK_VERSION"
+git push origin HEAD:master
+# Commit the rest
+git add .
+git commit -m "Travis Build $TRAVIS_BUILD_NUMBER"
+git push origin HEAD:master
 
 # Send a PATCH request to update the description of the repository
 echo "Sending PATCH request"
