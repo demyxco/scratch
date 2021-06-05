@@ -1,7 +1,7 @@
 #!/bin/bash
 # Demyx
 # https://demyx.sh
-set -euo pipefail
+set -euox pipefail
 
 # Check if user is in docker group first
 if [[ -z "$(id | grep docker)" ]]; then
