@@ -10,9 +10,12 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx DEBIAN_FRONTEND=noninteractive
 
 before_install:
+  - sudo apt -y purge mysql*
+  - sudo apt update
+  - sudo apt -y upgrade
   - docker pull alpine
   - docker pull demyx/mariadb
   - docker pull demyx/wordpress
@@ -21,7 +24,7 @@ before_install:
   - docker network create demyx
 
 script:
-  - sudo docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
+  - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
   - docker run -d --name=demyx_db --network=demyx -e DEMYX_DATABASE=demyx -e DEMYX_USERNAME=demyx -e DEMYX_PASSWORD=demyx -e DEMYX_ROOT_PASSWORD=demyx demyx/mariadb
   - docker run -d --name=demyx_wp --network=demyx -v demyx_wp:/demyx -e DEMYX_DB_HOST=demyx_db -e DEMYX_DB_NAME=demyx -e DEMYX_DB_USER=demyx -e DEMYX_DB_PASSWORD=demyx demyx/wordpress
   - sleep 5
