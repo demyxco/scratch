@@ -14,6 +14,7 @@ env:
 
 before_install:
   - sudo apt update
+  - sudo apt list --upgradable
   - sudo apt --only-upgrade -y install docker-ce docker-ce-cli
 
 script:
