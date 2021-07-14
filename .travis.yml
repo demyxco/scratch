@@ -13,8 +13,8 @@ env:
   - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx DEBIAN_FRONTEND=noninteractive
 
 before_install:
-  - apt update
-  - apt upgrade
+  - sudo apt update
+  - sudo apt upgrade
   - docker pull alpine
   - docker pull demyx/mariadb
   - docker pull demyx/wordpress
