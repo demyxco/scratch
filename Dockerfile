@@ -133,7 +133,7 @@ RUN set -x \
 # BUILD CUSTOM MODULES
 #
 RUN set -ex; \
-    apk update && apk upgrade \
+    apk update && apk upgrade; \
     apk add --no-cache --virtual .build-deps \
     gcc \
     libc-dev \
