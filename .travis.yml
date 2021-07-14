@@ -6,6 +6,8 @@ notifications:
     on_success: never
     on_failure: never
 
+dist: focal
+
 services:
   - docker
 
@@ -13,9 +15,10 @@ env:
   - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx
 
 before_install:
-  - sudo apt update
-  - sudo apt list --upgradable
-  - sudo apt --only-upgrade -y install docker-ce
+  - cat /etc/os-release
+#  - sudo apt update
+#  - sudo apt list --upgradable
+#  - sudo apt --only-upgrade -y install docker-ce
 
 script:
   - docker build --no-cache -t demyx/"$DEMYX_REPOSITORY" .
