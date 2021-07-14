@@ -10,12 +10,9 @@ services:
   - docker
 
 env:
-  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx DEBIAN_FRONTEND=noninteractive
+  - DEMYX_USERNAME=demyx DEMYX_REPOSITORY=nginx
 
 before_install:
-  - sudo apt -y purge mysql*
-  - sudo apt update
-  - sudo apt -y upgrade
   - docker pull alpine
   - docker pull demyx/mariadb
   - docker pull demyx/wordpress
